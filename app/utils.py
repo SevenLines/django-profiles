@@ -125,35 +125,35 @@ class TestCaseEx(TestCase):
 
         return _wrapper
 
-    def cant_post(self, view_name, params={}):
+    def cant_post(self, view_name, params={}, pargs=[]):
         """
         :rtype: django.http.HttpResponse
         """
-        response = self.client.post(reverse(view_name), params)
+        response = self.client.post(reverse(view_name, args=pargs), params)
         self.assertEqual(response.status_code, 302)
         return response
 
-    def cant_get(self, view_name, params={}):
+    def cant_get(self, view_name, params={}, pargs=[]):
         """
         :rtype: django.http.HttpResponse
         """
-        response = self.client.get(reverse(view_name), params)
+        response = self.client.get(reverse(view_name, args=pargs), params)
         self.assertEqual(response.status_code, 302)
         return response
 
-    def can_post(self, view_name, params={}):
+    def can_post(self, view_name, params={}, pargs=[]):
         """
         :rtype: django.http.HttpResponse
         """
-        response = self.client.post(reverse(view_name), params)
+        response = self.client.post(reverse(view_name, args=pargs), params)
         self.assertEqual(response.status_code, 200)
         return response
 
-    def can_get(self, view_name, params={}):
+    def can_get(self, view_name, params={}, pargs=[]):
         """
         :rtype: django.http.HttpResponse
         """
-        response = self.client.get(reverse(view_name), params)
+        response = self.client.get(reverse(view_name, args=pargs), params)
         self.assertEqual(response.status_code, 200)
         return response
 

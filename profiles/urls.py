@@ -8,7 +8,7 @@ v1_api = Api(api_name='v1')
 v1_api.register(ProfileResource())
 
 urlpatterns = patterns("profiles.views",
-   url(r'(?P<id>\d+)/show/$', "add"),
+   url(r'(?P<id>\d+)/show/$', "show"),
    url(r'(?P<id>\d+)/update/$', "update"),
    url(r'(?P<id>\d+)/remove/$', "remove"),
    url(r'add/$', "add"),

@@ -8,7 +8,7 @@ from app.settings import BASE_DIR
 
 
 if 'test' in sys.argv:
-    print('using test database')
+    print("using test database\n")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

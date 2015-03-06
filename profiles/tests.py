@@ -7,10 +7,8 @@ class TestProfilesViews(TestCaseEx):
         self.can_get("profiles.views.index")
 
     def test_anyone_can_check_profile(self):
-        p = Profile.objects.create(name="somename")
-        self.can_get("profiles.views.show", {
-            "id": p.pk
-        })
+        p = Profile.objects.create(name=u"somename")
+        self.can_get("profiles.views.show", pargs=[p.pk])
 
     @TestCaseEx.login
     def test_logged_user_can_see_more_data(self):
@@ -38,16 +36,15 @@ class TestProfilesViews(TestCaseEx):
         self.assertEqual(new_profile.name, params['name'])
 
     def test_guest_cant_update(self):
-        self.cant_post("profiles.views.update")
-        self.cant_get("profiles.views.update")
+        p = Profile.objects.create(name=u"some_new_name")
+        self.cant_post("profiles.views.update", pargs=[p.pk])
+        self.cant_get("profiles.views.update", pargs=[p.pk])
 
     @TestCaseEx.login
     def test_update_should_update_values(self):
         p = Profile.objects.create(name="some_new_name")
 
-        self.can_get("profiles.views.update", {
-            "id": p.id
-        })  # check that we can get update page
+        self.can_get("profiles.views.update", pargs=[p.pk])  # check that we can get update page
 
         params = {
             'text': '1928laksldjas',
@@ -59,18 +56,17 @@ class TestProfilesViews(TestCaseEx):
         self.assertEqual(p.name, params['name'])
 
     def test_guest_cant_remove(self):
-        self.cant_post("profiles.views.remove")
-        self.cant_get("profiles.views.remove")
+        p = Profile.objects.create(name=u"new item")
+        self.cant_post("profiles.views.remove", pargs=[p.pk])
+        self.cant_get("profiles.views.remove", pargs=[p.pk])
 
 
     @TestCaseEx.login
     def test_remove_should_remove_profile(self):
-        p = Profile.objects.create("new item")
-        self.assertEqual(1, Profile.objects.filter(pk=p.pk))
-        self.can_post("profiles.views.remove", {
-            "id": p.pk
-        })
-        self.assertEqual(0, Profile.objects.filter(pk=p.pk))
+        p = Profile.objects.create(name=u"new item")
+        self.assertEqual(1, Profile.objects.filter(pk=p.pk).count())
+        self.can_post("profiles.views.remove", pargs=[p.pk])
+        self.assertEqual(0, Profile.objects.filter(pk=p.pk).count())
 
 
 
