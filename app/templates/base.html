@@ -4,19 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
-    {% render "core-js" %}
-    {% render "core-css" %}
+    {% render_block "core-js" %}
+    {% render_block "core-css" %}
 
     {% include "scripts.html" %}
     {% include "styles.html" %}
 
 </head>
 <body>
+<div class="container">
+    <nav class="navbar navbar-default" role="navigation">
 
-{% block content %}
-{% endblock %}
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Profiles</a>
+        </div>
 
-{% render "css" %}
-{% render "js" %}
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </nav>
+    {% block content %}
+    {% endblock %}
+</div>
+
+{% render_block "css" %}
+{% render_block "js" %}
 </body>
 </html>

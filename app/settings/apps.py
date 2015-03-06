@@ -9,4 +9,5 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'sekizai', # to extend scripts and styles organization
+    "profiles", # common profiles application
 )
