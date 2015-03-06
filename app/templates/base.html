@@ -1,0 +1,22 @@
+{% load sekizai_tags %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    {% render "core-js" %}
+    {% render "core-css" %}
+
+    {% include "scripts.html" %}
+    {% include "styles.html" %}
+
+</head>
+<body>
+
+{% block content %}
+{% endblock %}
+
+{% render "css" %}
+{% render "js" %}
+</body>
+</html>
