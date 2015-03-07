@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "profiles/manager/base.html" %}
 {% load bootstrap3 %}
-{% block content %}
+{% block manager_content %}
     {% bootstrap_messages %}
     <form action="{% url "profiles.views.profile.add" %}" method="post">
         {% csrf_token %}

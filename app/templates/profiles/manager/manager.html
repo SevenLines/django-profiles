@@ -1,45 +1,47 @@
-{% extends "base.html" %}
-{% block content %}
-    <div class="row">
-        <div class="col-md-6">
-            <div class="list-group">
-                {% for profile in profiles %}
-                    <a class="list-group-item" href="#">{{ profile.name }}</a>
-                {% endfor %}
+{% extends "profiles/manager/base.html" %}
+{% block manager_content %}
+    <div ng-app="manager-app">
+        {% verbatim %}
+        <div class="row">
+            <div class="col-md-6" ng-controller="ProfilesCtrl">
+                <div class="list-group">
+                    <a class="list-group-item profile" href="#" ng-repeat="profile in profiles">
+                        {{ profile.name }}
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <ul class="list-group">
-                <li class="list-group-item">
-                    <div class="input-group">
-
-                        <input type="text" class="form-control" placeholder="filter users"/>
-
-                        <div class="input-group-btn">
-                            <button class="btn btn-default">
-                                <span class="glyphicon glyphicon-search"></span>
-                            </button>
-                        </div>
-                    </div>
-                </li>
-                {% for user in users %}
+            <div class="col-md-6" ng-controller="UsersCtrl">
+                <ul class="list-group">
                     <li class="list-group-item">
+                        <div class="input-group">
+
+                            <input type="text" class="form-control" ng-model="query.username"
+                                   placeholder="filter users"/>
+
+                            <div class="input-group-btn">
+                                <button class="btn btn-default">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item user" ng-repeat="user in users | filter:query">
                         <table style="width: 100%">
                             <tr>
                                 <td>
                                     <div class="input-group">
                                         <div class="input-group-addon">
-                                            {{ user }}
+                                            {{ user.username }}
                                         </div>
-                                        <input type="text" name="passkey"  class="form-control"/>
+                                        <input type="text" name="passkey" class="form-control"/>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <div class="btn btn-default">
+                                        <div class="btn btn-default passkey">
                                             <span class="glyphicon glyphicon-refresh"></span>
                                         </div>
-                                        <div class="btn btn-danger">
+                                        <div class="btn btn-danger access">
                                             <span class="glyphicon glyphicon-lock"></span>
                                         </div>
                                     </div>
@@ -47,8 +49,9 @@
                             </tr>
                         </table>
                     </li>
-                {% endfor %}
-            </ul>
+                </ul>
+            </div>
         </div>
     </div>
+    {% endverbatim %}
 {% endblock %}

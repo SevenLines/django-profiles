@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load sekizai_tags static %}
+{% block content %}
+    {% block manager_content %}{% endblock %}
+
+    {% addtoblock "js" %}
+        <script src="{% static "vendor/angular/angular.js" %}"></script>
+{#        <script src="{% static "vendor/knockoutjs/dist/knockout.js" %}"></script>#}
+        <script src="{% static "js/manager/app.js" %}"></script>
+
+        <script>
+        commonUrls = {
+            'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
+            'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json'
+        }
+        </script>
+    {% endaddtoblock %}
+{% endblock %}
