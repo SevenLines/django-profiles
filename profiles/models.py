@@ -33,7 +33,7 @@ class ProfileBase(models.Model):
 # class ProfilePasswords(ProfileBase):
 # """
 # model for storing associated with
-#     """
+# """
 #     profile = models.ForeignKey('Profile')
 #     passkey = models.CharField(max_length=128)
 #
@@ -55,11 +55,19 @@ class ProfileBase(models.Model):
 
 # Create your models here.
 class Profile(ProfileBase):
-    pass
+    def can_be_accessed(self, passkey, user):
+        """
+        :return: True if user can access profile using provided passkey
+        """
+        return ProfilePasskeys.objects.filter(passkey=passkey, user=user, profile=self).count() > 0
 
 
 class ProfilePasskeys(models.Model):
     profile = models.ForeignKey(Profile)
     user = models.ForeignKey(User)
     passkey = models.CharField(max_length=128)
+
+    class Meta:
+        unique_together = ('profile', 'user')
+
 

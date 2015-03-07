@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 {% block content %}
     {% bootstrap_messages %}
-    <form action="{% url "profiles.views.update" profile.pk %}" method="post">
+    <form action="{% url "profiles.views.profile.update" profile.pk %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
         {% buttons %}

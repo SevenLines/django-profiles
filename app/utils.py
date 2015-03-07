@@ -110,8 +110,6 @@ def add_cross_domain(http_response):
     return http_response
 
 
-
-
 class TestCaseEx(TestCase):
     """
     Extended TestCase class with ability to login, logout and some helpers methods
@@ -139,6 +137,42 @@ class TestCaseEx(TestCase):
             self.client.logout()
 
         return _wrapper
+
+    def redirect_to_login_on_post(self, view_name, params=None, pargs=None, ajax=False):
+        """
+        :rtype: django.http.HttpResponse
+        """
+        if not pargs:
+            pargs = []
+        if not params:
+            params = {}
+        response = self.client.post(
+            reverse(view_name, args=pargs),
+            params,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest' if ajax else None
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             reverse("django.contrib.auth.views.login") + '?next=%s' % reverse(view_name, args=pargs))
+        return response
+
+    def redirect_to_login_on_get(self, view_name, params=None, pargs=None, ajax=False):
+        """
+        :rtype: django.http.HttpResponse
+        """
+        if not pargs:
+            pargs = []
+        if not params:
+            params = {}
+        response = self.client.get(
+            reverse(view_name, args=pargs),
+            params,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest' if ajax else None
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response,
+                             reverse("django.contrib.auth.views.login") + '?next=%s' % reverse(view_name, args=pargs))
+        return response
 
     def redirect_on_post(self, view_name, params=None, pargs=None, ajax=False):
         """

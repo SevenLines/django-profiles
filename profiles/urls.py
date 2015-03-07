@@ -8,13 +8,21 @@ v1_api = Api(api_name='v1')
 v1_api.register(ProfileResource())
 
 urlpatterns = patterns("profiles.views",
-   url(r'(?P<id>\d+)/show/$', "show"),
-   url(r'(?P<id>\d+)/update/$', "update"),
-   url(r'(?P<id>\d+)/remove/$', "remove"),
-   url(r'manager/$', "manager"),
-   url(r'add/$', "add"),
-   url(r'(?P<slug>[\w-]+)/$', "show_by_slug"),
-   url(r'$', "index"),
+   url(r'(?P<id>\d+)/show/$', "profile.show"),
+   url(r'(?P<id>\d+)/update/$', "profile.update"),
+   url(r'(?P<id>\d+)/remove/$', "profile.remove"),
+
+   url(r'manager/$', "manager.manager"),
+   url(r'manager/profile/(?P<profile_id>\d+)/user/$', "manager.get_profile_users"),
+   url(r'manager/user/(?P<user_id>\d+)/profile/$', "manager.get_user_profiles"),
+   url(r'manager/profile/(?P<profile_id>\d+)/users/(?P<user_id>\d+)/add', "manager.add_user_to_profile"),
+   url(r'manager/profile/(?P<profile_id>\d+)/users/(?P<user_id>\d+)/remove', "manager.remove_user_from_profile"),
+   url(r'manager/profile/(?P<profile_id>\d+)/users/(?P<user_id>\d+)/update', "manager.update_user_profile_passkey"),
+   url(r'manager/profile/(?P<profile_id>\d+)/check_passkey', "manager.check_passkey"),
+   url(r'add/$', "profile.add"),
+
+   url(r'(?P<slug>[\w-]+)/$', "profile.show_by_slug"),
+   url(r'$', "profile.index"),
 )
 
 

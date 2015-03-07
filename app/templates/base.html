@@ -29,9 +29,14 @@
                 <a href="{% url "django.contrib.auth.views.logout" %}?next={{ request.path }}" class="btn btn-default">
                     Logout <strong>{{ user }}</strong>
                 </a>
-                <a href="{% url "profiles.views.manager" %}" class="btn btn-default">
-                    Profiles manager
-                </a>
+                {% if user.is_superuser %}
+                    <a href="{% url "profiles.views.manager.manager" %}" class="btn btn-default">
+                        Profiles manager
+                    </a>
+                    <a href="/admin" class="btn btn-default">
+                        Admin
+                    </a>
+                {% endif %}
             {% else %}
                 <a href="{% url "django.contrib.auth.views.login" %}?next={{ request.path }}" class="btn btn-default">Log
                     in</a>

@@ -6,37 +6,37 @@ from profiles.models import Profile
 
 class TestProfilesViews(TestCaseEx):
     def test_anyone_can_see_index_page(self):
-        self.can_get("profiles.views.index")
+        self.can_get("profiles.views.profile.index")
 
     def test_anyone_can_check_profile(self):
         p = Profile.objects.create(name=u"somename")
-        self.can_get("profiles.views.show", pargs=[p.pk])
+        self.can_get("profiles.views.profile.show", pargs=[p.pk])
 
     @TestCaseEx.superuser
     def test_logged_user_can_see_more_data(self):
         pass
 
     def test_guest_cant_add(self):
-        self.redirect_on_post("profiles.views.add")
-        self.redirect_on_get("profiles.views.add")
+        self.redirect_on_post("profiles.views.profile.add")
+        self.redirect_on_get("profiles.views.profile.add")
 
     @TestCaseEx.superuser
     def test_adding_should_create_new_profile(self):
-        self.can_get("profiles.views.add")  # check that we can get add page
+        self.can_get("profiles.views.profile.add")  # check that we can get add page
 
         count_before = Profile.objects.count()
         params = {
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        response = self.redirect_on_post("profiles.views.add", params)
+        response = self.redirect_on_post("profiles.views.profile.add", params)
 
         self.assertEqual(count_before + 1, Profile.objects.count())
         new_profile = Profile.objects.order_by("-pk").first()
         self.assertEqual(new_profile.text, params['text'])
         self.assertEqual(new_profile.name, params['name'])
 
-        self.assertRedirects(response, reverse("profiles.views.show_by_slug", args=[new_profile.slug]))
+        self.assertRedirects(response, reverse("profiles.views.profile.show_by_slug", args=[new_profile.slug]))
 
     @TestCaseEx.superuser
     def test_adding_with_ajax_should_create_new_profile(self):
@@ -45,7 +45,7 @@ class TestProfilesViews(TestCaseEx):
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        response = self.can_post("profiles.views.add", params, ajax=True)
+        response = self.can_post("profiles.views.profile.add", params, ajax=True)
         self.assertEqual(count_before + 1, Profile.objects.count())
 
         data = json.loads(response.content)
@@ -64,23 +64,23 @@ class TestProfilesViews(TestCaseEx):
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        self.redirect_on_post("profiles.views.update", pargs=[p.pk], params=params)
-        self.redirect_on_get("profiles.views.update", pargs=[p.pk], params=params)
+        self.redirect_on_post("profiles.views.profile.update", pargs=[p.pk], params=params)
+        self.redirect_on_get("profiles.views.profile.update", pargs=[p.pk], params=params)
 
     @TestCaseEx.superuser
     def test_update_should_update_values(self):
         p = Profile.objects.create(name=u"some_new_name")
 
-        self.can_get("profiles.views.update", pargs=[p.pk])  # check that we can get update page
+        self.can_get("profiles.views.profile.update", pargs=[p.pk])  # check that we can get update page
 
         params = {
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        response = self.redirect_on_post("profiles.views.update", params=params, pargs=[p.pk])
+        response = self.redirect_on_post("profiles.views.profile.update", params=params, pargs=[p.pk])
 
         p = Profile.objects.get(pk=p.pk)
-        self.assertRedirects(response, reverse("profiles.views.show_by_slug", args=[p.slug]))
+        self.assertRedirects(response, reverse("profiles.views.profile.show_by_slug", args=[p.slug]))
 
         self.assertEqual(p.text, params['text'])
         self.assertEqual(p.name, params['name'])
@@ -93,7 +93,7 @@ class TestProfilesViews(TestCaseEx):
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        response = self.can_post("profiles.views.update", params=params, pargs=[p.pk], ajax=True)
+        response = self.can_post("profiles.views.profile.update", params=params, pargs=[p.pk], ajax=True)
 
 
         data = json.loads(response.content)
@@ -107,8 +107,8 @@ class TestProfilesViews(TestCaseEx):
 
     def test_guest_cant_remove(self):
         p = Profile.objects.create(name=u"new item")
-        self.redirect_on_post("profiles.views.remove", pargs=[p.pk])
-        self.redirect_on_get("profiles.views.remove", pargs=[p.pk])
+        self.redirect_on_post("profiles.views.profile.remove", pargs=[p.pk])
+        self.redirect_on_get("profiles.views.profile.remove", pargs=[p.pk])
 
 
     @TestCaseEx.superuser
@@ -116,8 +116,8 @@ class TestProfilesViews(TestCaseEx):
         p = Profile.objects.create(name=u"new item")
         self.assertEqual(1, Profile.objects.filter(pk=p.pk).count())
 
-        response = self.redirect_on_get("profiles.views.remove", pargs=[p.pk])
-        self.assertRedirects(response, reverse("profiles.views.index"))
+        response = self.redirect_on_get("profiles.views.profile.remove", pargs=[p.pk])
+        self.assertRedirects(response, reverse("profiles.views.profile.index"))
 
         self.assertEqual(0, Profile.objects.filter(pk=p.pk).count())
 
@@ -126,7 +126,7 @@ class TestProfilesViews(TestCaseEx):
         p = Profile.objects.create(name=u"new item")
         self.assertEqual(1, Profile.objects.filter(pk=p.pk).count())
 
-        response = self.can_get("profiles.views.remove", pargs=[p.pk], ajax=True)
+        response = self.can_get("profiles.views.profile.remove", pargs=[p.pk], ajax=True)
 
         self.assertEqual(0, Profile.objects.filter(pk=p.pk).count())
 

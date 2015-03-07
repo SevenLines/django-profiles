@@ -5,17 +5,17 @@
             <div class="profile-item">
                 <div class="profile-content">
 
-                    <h1><a href="{% url "profiles.views.show_by_slug" profile.slug %}">{{ profile.name }}</a></h1>
+                    <h1><a href="{% url "profiles.views.profile.show_by_slug" profile.slug %}">{{ profile.name }}</a></h1>
 
                     <p>{{ profile.text }}</p>
 
                     {% if user.is_authenticated %}
                         <div class="profile-menu btn-group">
                             <a type="button" class="btn btn-default"
-                               href="{% url "profiles.views.update" profile.pk %}">
+                               href="{% url "profiles.views.profile.update" profile.pk %}">
                                 <span class="glyphicon glyphicon-edit"></span>
                             </a>
-                            <a type="button" class="btn btn-danger" href="{% url "profiles.views.remove" profile.pk %}">
+                            <a type="button" class="btn btn-danger" href="{% url "profiles.views.profile.remove" profile.pk %}">
                                 <span class="glyphicon glyphicon-remove"></span>
                             </a>
                         </div>
@@ -26,7 +26,7 @@
         {% if user.is_authenticated %}
             <div class="profile-item add">
                 <div class="profile-content">
-                    <a href="{% url "profiles.views.add" %}">add page</a>
+                    <a href="{% url "profiles.views.profile.add" %}">add page</a>
                 </div>
             </div>
         {% endif %}

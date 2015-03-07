@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 # Create your views here.
 from profiles.forms import ProfileForm
-from profiles.models import Profile
+from profiles.models import Profile, ProfilePasskeys
 
 
 def index(request):
@@ -52,9 +52,9 @@ def add(request):
                 return HttpResponse(serialize('json', [profile, ]).strip("[]"))
             else:
                 if profile.slug:
-                    return redirect(reverse("profiles.views.show_by_slug", args=[profile.slug]))
+                    return redirect(reverse("profiles.views.profile.show_by_slug", args=[profile.slug]))
                 else:
-                    return redirect(reverse("profiles.views.show", args=[profile.pk]))
+                    return redirect(reverse("profiles.views.profile.show", args=[profile.pk]))
         else:
             if request.is_ajax():
                 return HttpResponse(serialize('json', form.errors))
@@ -70,7 +70,7 @@ def remove(request, id):
     if request.is_ajax():
         return HttpResponse()
     else:
-        return redirect(reverse("profiles.views.index"))
+        return redirect(reverse("profiles.views.profile.index"))
 
 
 @login_required
@@ -98,21 +98,12 @@ def update(request, id):
                 return HttpResponse(serialize('json', [profile, ]).strip("[]"))
             else:
                 if profile.slug:
-                    return redirect(reverse("profiles.views.show_by_slug", args=[profile.slug]))
+                    return redirect(reverse("profiles.views.profile.show_by_slug", args=[profile.slug]))
                 else:
-                    return redirect(reverse("profiles.views.show", args=[profile.pk]))
+                    return redirect(reverse("profiles.views.profile.show", args=[profile.pk]))
         else:
             if request.is_ajax():
                 return render(request, "profiles/update.html", context)
             else:
                 return HttpResponse(serialize('json', form.errors))
     return HttpResponse()
-
-
-@login_required
-def manager(request):
-    context = {
-        'users': User.objects.all(),
-        'profiles': Profile.objects.all(),
-    }
-    return render(request, "profiles/manager.html", context)
