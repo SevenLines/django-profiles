@@ -11,7 +11,8 @@
         <script>
         commonUrls = {
             'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
-            'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json'
+            'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json',
+            'profilepasskeys': '{% url "api_dispatch_list" resource_name="profilepasskeys" api_name='v1' %}?format=json',
         }
         </script>
     {% endaddtoblock %}

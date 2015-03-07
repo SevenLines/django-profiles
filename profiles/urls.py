@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.conf.urls import patterns, url, include
 from tastypie.api import Api
-from profiles.api import ProfileResource, UserResource
+from profiles.api import ProfileResource, UserResource, ProfilePasskeysResource
 
 
+# register api for REST access with tastypie
 v1_api = Api(api_name='v1')
 v1_api.register(ProfileResource())
 v1_api.register(UserResource())
+v1_api.register(ProfilePasskeysResource())
 
 urlpatterns = patterns("profiles.views",
    url(r'(?P<id>\d+)/show/$', "profile.show"),
