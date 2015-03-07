@@ -1,8 +1,10 @@
 {% extends "profiles/manager/base.html" %}
 {% load bootstrap3 %}
 {% block manager_content %}
+    <h2><small>Provide correct passkey to get access to</small> {{ profile.name }}</h2>
+
     {% bootstrap_messages %}
-    <form action="{% url "profiles.views.profile.provide_passkey" profile_id %}" method="post">
+    <form action="{% url "profiles.views.profile.provide_passkey" profile.pk %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
         {% buttons %}

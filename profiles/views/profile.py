@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.serializers import json, serialize
@@ -13,7 +14,7 @@ session_passkeys = "passkeys" # const, session variable which keeps all data
 
 def check_passkey(fn):
     """
-    checks if correct passkey present in session and redirects to enter passkey page otherwise
+    checks if correct passkey present in session and redirects to provide passkey page otherwise
     :return:
     """
     def wrapper(request, id):
@@ -25,6 +26,7 @@ def check_passkey(fn):
         if passkeys and id in passkeys and passkeys[id] == pkk.passkey:
             return fn(request, id)
         else:
+            messages.warning(request, 'wrong passkey')
             return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
 
     return wrapper
@@ -36,7 +38,7 @@ def provide_passkey(request, id):
         form = PasskeyForm()
         return render(request, "profiles/manager/enter_passkey.html", {
             'form': form,
-            'profile_id': id,
+            'profile': get_object_or_404(Profile, pk=id)
         })
     elif request.method == "POST":
         form = PasskeyForm(request.POST)
@@ -48,7 +50,7 @@ def provide_passkey(request, id):
         else:
             return render(request, "profiles/manager/enter_passkey.html", {
                 'form': form,
-                'profile_id': id,
+                'profile': get_object_or_404(Profile, pk=id)
             })
 
     return HttpResponseBadRequest()
