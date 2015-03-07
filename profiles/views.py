@@ -11,7 +11,9 @@ from profiles.models import Profile
 
 
 def index(request):
-    return render(request, "profiles/index.html")
+    return render(request, "profiles/index.html", {
+        'profiles': Profile.objects.all()
+    })
 
 
 def show(request, id):
@@ -55,7 +57,10 @@ def add(request):
 def remove(request, id):
     profile = get_object_or_404(Profile, pk=id)
     profile.delete()
-    return HttpResponse()
+    if request.is_ajax():
+        return HttpResponse()
+    else:
+        return redirect(reverse("profiles.views.index"))
 
 
 @login_required

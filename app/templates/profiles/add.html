@@ -1,4 +1,14 @@
 {% extends "base.html" %}
+{% load bootstrap3 %}
 {% block content %}
-    ADD
+    {% bootstrap_messages %}
+    <form action="{% url "profiles.views.add" %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                <span class="glyphicon glyphicon-plus"></span> Add
+            </button>
+        {% endbuttons %}
+    </form>
 {% endblock %}

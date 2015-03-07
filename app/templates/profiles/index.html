@@ -1,20 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="profiles-list">
-        <div class="profile-item">
-            <div class="profile-content"></div>
-        </div>
-        <div class="profile-item">
-            <div class="profile-content"></div>
-        </div>
-        <div class="profile-item">
-            <div class="profile-content"></div>
-        </div>
-        <div class="profile-item add">
-            <div class="profile-content">
-                <a href="{% url "profiles.views.add" %}">add page</a>
-            </div>
-        </div>
+        {% for profile in profiles %}
+            <div class="profile-item">
+                <div class="profile-content">
 
+                    <h1>{{ profile.name }}</h1>
+
+                    <p>{{ profile.text }}</p>
+
+                    {% if user.is_authenticated %}
+                        <div class="profile-menu btn-group">
+                            <a type="button" class="btn btn-default"
+                               href="{% url "profiles.views.update" profile.pk %}">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </a>
+                            <a type="button" class="btn btn-danger" href="{% url "profiles.views.remove" profile.pk %}">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        {% if user.is_authenticated %}
+            <div class="profile-item add">
+                <div class="profile-content">
+                    <a href="{% url "profiles.views.add" %}">add page</a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

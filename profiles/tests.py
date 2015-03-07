@@ -115,7 +115,19 @@ class TestProfilesViews(TestCaseEx):
     def test_remove_should_remove_profile(self):
         p = Profile.objects.create(name=u"new item")
         self.assertEqual(1, Profile.objects.filter(pk=p.pk).count())
-        self.can_post("profiles.views.remove", pargs=[p.pk])
+
+        response = self.redirect_on_get("profiles.views.remove", pargs=[p.pk])
+        self.assertRedirects(response, reverse("profiles.views.index"))
+
+        self.assertEqual(0, Profile.objects.filter(pk=p.pk).count())
+
+    @TestCaseEx.login
+    def test_remove_on_ajax_should_remove_profile(self):
+        p = Profile.objects.create(name=u"new item")
+        self.assertEqual(1, Profile.objects.filter(pk=p.pk).count())
+
+        response = self.can_get("profiles.views.remove", pargs=[p.pk], ajax=True)
+
         self.assertEqual(0, Profile.objects.filter(pk=p.pk).count())
 
 

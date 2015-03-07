@@ -1,4 +1,14 @@
 {% extends "base.html" %}
+{% load bootstrap3 %}
 {% block content %}
-    UPDATE
+    {% bootstrap_messages %}
+    <form action="{% url "profiles.views.update" profile.pk %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="submit" class="btn btn-success">
+                <span class="glyphicon glyphicon-save"></span> Save
+            </button>
+        {% endbuttons %}
+    </form>
 {% endblock %}

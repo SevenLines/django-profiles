@@ -1,12 +1,22 @@
+$profile-menu-offset: 6px;
+
 .profiles-list {
   .profile-item {
-//    width: 33.3%;
-//    float: left;
+    width: 33.3%;
+    float: left;
     padding: 0 0.5em 1em;
     .profile-content {
-//      height: 250px;
+      position: relative;
+      padding: 1em;
+      display: block;
+      height: 250px;
       border: 1px solid black;
-      border-radius: 6px;
+      border-radius: $profile-menu-offset;
+    }
+    .profile-menu {
+      top: $profile-menu-offset;
+      right: $profile-menu-offset;
+      position: absolute;
     }
   }
 }
