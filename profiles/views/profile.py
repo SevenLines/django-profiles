@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.serializers import json, serialize
 from django.core.urlresolvers import reverse
@@ -6,13 +6,58 @@ from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 
 # Create your views here.
-from profiles.forms import ProfileForm
+from profiles.forms import ProfileForm, PasskeyForm
 from profiles.models import Profile, ProfilePasskeys
+
+session_passkeys = "passkeys" # const, session variable which keeps all data
+
+def check_passkey(fn):
+    """
+    checks if correct passkey present in session and redirects to enter passkey page otherwise
+    :return:
+    """
+    def wrapper(request, id):
+        if request.user.is_superuser:
+            return fn(request, id)
+
+        passkeys = request.session.get(session_passkeys)
+        pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
+        if passkeys and id in passkeys and passkeys[id] == pkk.passkey:
+            return fn(request, id)
+        else:
+            return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
+
+    return wrapper
+
+
+@login_required
+def provide_passkey(request, id):
+    if request.method == "GET":
+        form = PasskeyForm()
+        return render(request, "profiles/manager/enter_passkey.html", {
+            'form': form,
+            'profile_id': id,
+        })
+    elif request.method == "POST":
+        form = PasskeyForm(request.POST)
+        if form.is_valid():
+            passkeys = request.session.get(session_passkeys, {})
+            passkeys[id] = form.cleaned_data['passkey']
+            request.session[session_passkeys] = passkeys
+            return redirect(reverse("profiles.views.profile.update", args=[id]))
+        else:
+            return render(request, "profiles/manager/enter_passkey.html", {
+                'form': form,
+                'profile_id': id,
+            })
+
+    return HttpResponseBadRequest()
 
 
 def index(request):
     return render(request, "profiles/index.html", {
-        'profiles': Profile.objects.all()
+        'profiles': Profile.objects.all(),
+        'allowed_profiles_id': Profile.list_accessed_by(request.user).values_list("pk", flat=True),
     })
 
 
@@ -30,7 +75,7 @@ def show_by_slug(request, slug):
     })
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def add(request):
     """
     add profile, on GET returns common profile-add-page
@@ -63,7 +108,7 @@ def add(request):
     return HttpResponseBadRequest()
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def remove(request, id):
     profile = get_object_or_404(Profile, pk=id)
     profile.delete()
@@ -74,6 +119,7 @@ def remove(request, id):
 
 
 @login_required
+@check_passkey
 def update(request, id):
     """
     updates profile by id, on GET returns common profile-update-page

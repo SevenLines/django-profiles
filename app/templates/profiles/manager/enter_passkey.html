@@ -2,12 +2,12 @@
 {% load bootstrap3 %}
 {% block manager_content %}
     {% bootstrap_messages %}
-    <form action="{% url "profiles.views.profile.add" %}" method="post">
+    <form action="{% url "profiles.views.profile.provide_passkey" profile_id %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
         {% buttons %}
             <button type="submit" class="btn btn-primary">
-                <span class="glyphicon glyphicon-plus"></span> Add
+                Submit
             </button>
         {% endbuttons %}
     </form>

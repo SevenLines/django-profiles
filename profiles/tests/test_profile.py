@@ -20,6 +20,11 @@ class TestProfilesViews(TestCaseEx):
         self.redirect_on_post("profiles.views.profile.add")
         self.redirect_on_get("profiles.views.profile.add")
 
+    @TestCaseEx.login
+    def test_simple_user_cant_add(self):
+        self.redirect_on_post("profiles.views.profile.add")
+        self.redirect_on_get("profiles.views.profile.add")
+
     @TestCaseEx.superuser
     def test_adding_should_create_new_profile(self):
         self.can_get("profiles.views.profile.add")  # check that we can get add page
@@ -57,7 +62,6 @@ class TestProfilesViews(TestCaseEx):
         self.assertEqual(data['fields']['name'], params['name'])
         self.assertEqual(new_profile.name, params['name'])
 
-
     def test_guest_cant_update(self):
         p = Profile.objects.create(name=u"some_new_name")
         params = {
@@ -66,6 +70,21 @@ class TestProfilesViews(TestCaseEx):
         }
         self.redirect_on_post("profiles.views.profile.update", pargs=[p.pk], params=params)
         self.redirect_on_get("profiles.views.profile.update", pargs=[p.pk], params=params)
+
+    @TestCaseEx.login
+    def test_simple_user_cant_update_without_passkey_in_session(self):
+        p = Profile.objects.create(name=u"some_new_name")
+
+        params = {
+            'text': '1928laksldjas',
+            'name': 'alsjdlaskdjlsd'
+        }
+        response = self.redirect_on_post("profiles.views.profile.update", params=params, pargs=[p.pk])
+
+
+    # @TestCaseEx.login
+    # def test_simple_user_should_provide_passkey_to_update(self):
+    # pass
 
     @TestCaseEx.superuser
     def test_update_should_update_values(self):
@@ -95,7 +114,6 @@ class TestProfilesViews(TestCaseEx):
         }
         response = self.can_post("profiles.views.profile.update", params=params, pargs=[p.pk], ajax=True)
 
-
         data = json.loads(response.content)
         p = Profile.objects.get(pk=p.pk)
 
@@ -110,6 +128,11 @@ class TestProfilesViews(TestCaseEx):
         self.redirect_on_post("profiles.views.profile.remove", pargs=[p.pk])
         self.redirect_on_get("profiles.views.profile.remove", pargs=[p.pk])
 
+    @TestCaseEx.login
+    def test_simple_user_cant_remove(self):
+        p = Profile.objects.create(name=u"new item")
+        self.redirect_on_post("profiles.views.profile.remove", pargs=[p.pk])
+        self.redirect_on_get("profiles.views.profile.remove", pargs=[p.pk])
 
     @TestCaseEx.superuser
     def test_remove_should_remove_profile(self):

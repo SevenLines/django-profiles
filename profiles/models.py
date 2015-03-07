@@ -55,6 +55,18 @@ class ProfileBase(models.Model):
 
 # Create your models here.
 class Profile(ProfileBase):
+
+    @staticmethod
+    def list_accessed_by(user):
+        """
+        :param user:
+        :return: profiles which can be accessed by user
+        """
+        if user.is_superuser:
+            return Profile.objects.all()
+        else:
+            return Profile.objects.filter(pk__in=ProfilePasskeys.objects.filter(user_id=user.pk).values("profile_id"))
+
     def can_be_accessed(self, passkey, user):
         """
         :return: True if user can access profile using provided passkey

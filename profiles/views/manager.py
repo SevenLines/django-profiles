@@ -1,5 +1,5 @@
 import json
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse
@@ -13,7 +13,7 @@ from profiles.forms import ProfileForm, PasskeyForm, ProfilePasskeysForm
 from profiles.models import Profile, ProfilePasskeys
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def manager(request):
     context = {
         'users': User.objects.all(),
@@ -22,7 +22,7 @@ def manager(request):
     return render(request, "profiles/manager/manager.html", context)
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 @require_POST
 @require_in_POST('profile_passkeys')
 @atomic
@@ -62,7 +62,7 @@ def update_profile_passkeys(request):
 # @login_required
 # def get_profile_users(request, profile_id):
 # """
-#     :return: list of users which can work with profile with profile_id
+# :return: list of users which can work with profile with profile_id
 #     """
 #     data = User.objects.filter(pk__in=ProfilePasskeys.objects.filter(profile=profile_id).values("user"))
 #     data = serialize('json', data)

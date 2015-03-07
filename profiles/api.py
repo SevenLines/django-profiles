@@ -13,9 +13,8 @@ class ProfileResource(ModelResource):
 
 
 class UserResource(ModelResource):
-
     def get_object_list(self, request):
-        return super(UserResource, self).get_object_list(request).filter(is_superuser=False)
+        return super(UserResource, self).get_object_list(request).filter(is_superuser=False, is_active=True)
 
     class Meta:
         queryset = User.objects.all()
@@ -24,5 +23,6 @@ class UserResource(ModelResource):
 class ProfilePasskeysResource(ModelResource):
     profile = fields.IntegerField(attribute="profile_id")
     user = fields.IntegerField(attribute="user_id")
+
     class Meta:
         queryset = ProfilePasskeys.objects.all()

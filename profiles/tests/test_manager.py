@@ -16,26 +16,34 @@ class TestManagerViews(TestCaseEx):
         self.redirect_to_login_on_get("profiles.views.manager.manager")
         self.redirect_to_login_on_post("profiles.views.manager.manager")
 
-        # self.redirect_to_login_on_get("profiles.views.manager.get_profile_users", pargs=[profile.pk])
-        # self.redirect_to_login_on_post("profiles.views.manager.get_profile_users", pargs=[profile.pk])
-        #
-        # self.redirect_to_login_on_get("profiles.views.manager.get_user_profiles", pargs=[user.pk])
-        # self.redirect_to_login_on_post("profiles.views.manager.get_user_profiles", pargs=[user.pk])
-        #
-        # self.redirect_to_login_on_get("profiles.views.manager.add_user_to_profile", pargs=[user.pk, profile.pk])
-        # self.redirect_to_login_on_post("profiles.views.manager.add_user_to_profile", pargs=[user.pk, profile.pk])
-        #
-        # self.redirect_to_login_on_get("profiles.views.manager.remove_user_from_profile", pargs=[user.pk, profile.pk])
-        # self.redirect_to_login_on_post("profiles.views.manager.remove_user_from_profile", pargs=[user.pk, profile.pk])
-        #
-        # self.redirect_to_login_on_get("profiles.views.manager.update_user_profile_passkey", pargs=[user.pk, profile.pk])
-        # self.redirect_to_login_on_post("profiles.views.manager.update_user_profile_passkey", pargs=[user.pk, profile.pk])
+    @TestCaseEx.login
+    def test_simple_user_cant_work_with_manager_view(self):
+        profile = Profile.objects.create(name=u"name")
+        user = User.objects.first()
 
-        # self.redirect_to_login_on_get("profiles.views.manager.check_passkey", pargs=[profile.pk])
-        # self.redirect_to_login_on_post("profiles.views.manager.check_passkey", pargs=[profile.pk])
+        ProfilePasskeys.objects.all().delete()
+        ProfilePasskeys.objects.create(profile=profile, user=user, passkey='12345')
+
+        self.redirect_to_login_on_get("profiles.views.manager.manager")
+        self.redirect_to_login_on_post("profiles.views.manager.manager")
+
+    @TestCaseEx.superuser
+    def test_superuser_can_work_with_manager_view(self):
+        profile = Profile.objects.create(name=u"name")
+        user = User.objects.first()
+
+        ProfilePasskeys.objects.all().delete()
+        ProfilePasskeys.objects.create(profile=profile, user=user, passkey='12345')
+
+        self.can_get("profiles.views.manager.manager")
 
 
     def test_guest_cant_update_profile_passkeys(self):
+        self.redirect_to_login_on_get("profiles.views.manager.update_profile_passkeys")
+        self.redirect_to_login_on_post("profiles.views.manager.update_profile_passkeys")
+
+    @TestCaseEx.login
+    def test_simple_user_cant_update_profile_passkeys(self):
         self.redirect_to_login_on_get("profiles.views.manager.update_profile_passkeys")
         self.redirect_to_login_on_post("profiles.views.manager.update_profile_passkeys")
 
@@ -90,7 +98,7 @@ class TestManagerViews(TestCaseEx):
 
         new_values = {
             "profile_passkeys": json.dumps([
-                {"profile": profile.pk, "user": user.pk, "passkey": u'', u'allowed': 'false'}
+                {"profile": profile.pk, "user": user.pk, "passkey": u'', u'allowed': False}
             ])
         }
 
