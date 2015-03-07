@@ -5,9 +5,22 @@
         {% verbatim %}
         <div class="row">
             <div class="col-md-6" ng-controller="ProfilesCtrl">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <div class="input-group">
+
+                            <input type="text" class="form-control" ng-model="query"
+                                   placeholder="filter profiles"/>
+
+                            <div class="input-group-addon">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
                 <div class="list-group">
                     <div class="list-group-item profile"
-                         ng-repeat="profile in profiles"
+                         ng-repeat="profile in profiles | filter:query"
                          ng-click="setActiveProfile(profile)"
                          ng-class="{'active': profile == info.profile}">
                         {{ profile.name }}
@@ -22,10 +35,8 @@
                             <input type="text" class="form-control" ng-model="query.username"
                                    placeholder="filter users"/>
 
-                            <div class="input-group-btn">
-                                <button class="btn btn-default">
-                                    <span class="glyphicon glyphicon-search"></span>
-                                </button>
+                            <div class="input-group-addon">
+                                <span class="glyphicon glyphicon-search"></span>
                             </div>
                         </div>
                     </li>
@@ -41,7 +52,7 @@
 
                     <li class="list-group-item user"
                         ng-repeat="user in users | filter:query"
-                            ng-class="{'list-group-item-success': user.changed() }">
+                        ng-class="{'list-group-item-success': user.changed() }">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="input-group">
@@ -69,7 +80,7 @@
                                         <span class="glyphicon glyphicon-lock"></span>
                                     </div>
                                     <div class="btn save" ng-click="save()"
-                                            ng-class="{'btn-success':user.changed(),
+                                         ng-class="{'btn-success':user.changed(),
                                                     'btn-default': !user.changed() }">
                                         <span class="glyphicon glyphicon-save"></span>
                                     </div>

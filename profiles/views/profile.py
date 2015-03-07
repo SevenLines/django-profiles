@@ -26,7 +26,8 @@ def check_passkey(fn):
         if passkeys and id in passkeys and passkeys[id] == pkk.passkey:
             return fn(request, id)
         else:
-            messages.warning(request, 'wrong passkey')
+            if passkeys and id in passkeys:
+                messages.warning(request, 'wrong passkey')
             return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
 
     return wrapper

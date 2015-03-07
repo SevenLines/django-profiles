@@ -1,7 +1,9 @@
 import json
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from app.utils import TestCaseEx
-from profiles.models import Profile
+from profiles.models import Profile, ProfilePasskeys
+from profiles.views.profile import session_passkeys
 
 
 class TestProfilesViews(TestCaseEx):
@@ -72,19 +74,39 @@ class TestProfilesViews(TestCaseEx):
         self.redirect_on_get("profiles.views.profile.update", pargs=[p.pk], params=params)
 
     @TestCaseEx.login
-    def test_simple_user_cant_update_without_passkey_in_session(self):
-        p = Profile.objects.create(name=u"some_new_name")
+    def test_simple_user_cant_update_without_correct_passkey_in_session(self):
+        profile = Profile.objects.create(name=u"some_new_name")
+
+        ProfilePasskeys.objects.all().delete()
+        ProfilePasskeys.objects.create(user=self.user, profile=profile, passkey="5678")
 
         params = {
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        response = self.redirect_on_post("profiles.views.profile.update", params=params, pargs=[p.pk])
+        response = self.redirect_on_post("profiles.views.profile.update", params=params, pargs=[profile.pk, ])
+        self.assertRedirects(response, reverse("profiles.views.profile.provide_passkey", args=[profile.pk]))
 
 
-    # @TestCaseEx.login
-    # def test_simple_user_should_provide_passkey_to_update(self):
-    # pass
+    @TestCaseEx.login
+    def test_simple_user_can_update_with_correct_passkey_in_session(self):
+        profile = Profile.objects.create(name=u"some_new_name")
+        user = User.objects.create_user("sample_user3", password="12345")
+
+        ProfilePasskeys.objects.all().delete()
+        ProfilePasskeys.objects.create(user=self.user, profile=profile, passkey="5678")
+
+        session = self.client.session
+        session[session_passkeys] = {
+            profile.id: "5678"
+        }
+        session.save()
+
+        params = {
+            'text': '1928laksldjas',
+            'name': 'alsjdlaskdjlsd'
+        }
+        response = self.can_get("profiles.views.profile.update", params=params, pargs=[profile.pk])
 
     @TestCaseEx.superuser
     def test_update_should_update_values(self):
