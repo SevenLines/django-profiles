@@ -49,7 +49,9 @@
                                         {{ user.username }}
                                     </div>
                                     <input type="text" name="passkey" class="form-control"
-                                           ng-value="user.passkeys[info.profile.id]"/>
+                                           ng-model="user.passkeys[info.profile.id]"
+                                           ng-change="user.passkeyChanged()"
+                                            />
                                 </div>
                             </div>
                             <div class="col-md-6">
