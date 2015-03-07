@@ -1,4 +1,5 @@
 {% extends "profiles/manager/base.html" %}
+{% load sekizai_tags static %}
 {% block manager_content %}
     <div ng-app="manager-app">
         {% verbatim %}
@@ -39,24 +40,25 @@
                 <ul class="list-group" ng-show="info.profile">
 
                     <li class="list-group-item user" ng-repeat="user in users | filter:query">
-                        {{  }}
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="input-group">
                                     <div class="input-group-addon">
                                         {{ user.username }}
                                     </div>
-                                    <input type="text" name="passkey" class="form-control" ng-value="info.is_active_user(user)"/>
+                                    <input type="text" name="passkey" class="form-control"
+                                           ng-value="user.passkeys[info.profile.id]"/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="btn-group pull-right">
-                                    <div class="btn btn-default passkey">
+                                    <div class="btn btn-default passkey" ng-click="user.regenPassword()">
                                         <span class="glyphicon glyphicon-refresh"></span>
                                     </div>
                                     <div class="btn access"
-                                         ng-click="lock(user)"
-                                         ng-class="{'btn-success': info.is_active_user(user), 'btn-danger': !info.is_active_user(user)}"
+                                         ng-click="user.toggleAllowed()"
+                                         ng-class="{'btn-success':user.allowed[info.profile.id],
+                                                    'btn-danger': !user.allowed[info.profile.id] }"
                                             >
                                         <span class="glyphicon glyphicon-lock"></span>
                                     </div>
@@ -72,4 +74,16 @@
         </div>
     </div>
     {% endverbatim %}
+    {% addtoblock "js" %}
+        <script src="{% static "vendor/angular/angular.js" %}"></script>
+        <script src="{% static "js/manager/app.js" %}"></script>
+
+        <script>
+            commonUrls = {
+                'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
+                'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json',
+                'profilepasskeys': '{% url "api_dispatch_list" resource_name="profilepasskeys" api_name='v1' %}?format=json',
+            }
+        </script>
+    {% endaddtoblock %}
 {% endblock %}
