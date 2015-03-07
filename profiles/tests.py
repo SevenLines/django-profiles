@@ -1,3 +1,5 @@
+import json
+from django.core.urlresolvers import reverse
 from app.utils import TestCaseEx
 from profiles.models import Profile
 
@@ -15,8 +17,8 @@ class TestProfilesViews(TestCaseEx):
         pass
 
     def test_guest_cant_add(self):
-        self.cant_post("profiles.views.add")
-        self.cant_get("profiles.views.add")
+        self.redirect_on_post("profiles.views.add")
+        self.redirect_on_get("profiles.views.add")
 
     @TestCaseEx.login
     def test_adding_should_create_new_profile(self):
@@ -27,22 +29,47 @@ class TestProfilesViews(TestCaseEx):
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        self.can_post("profiles.views.add", params)
-        self.assertEqual(count_before + 1, Profile.objects.count())
+        response = self.redirect_on_post("profiles.views.add", params)
 
-        # check for newely added profile
+        self.assertEqual(count_before + 1, Profile.objects.count())
         new_profile = Profile.objects.order_by("-pk").first()
         self.assertEqual(new_profile.text, params['text'])
         self.assertEqual(new_profile.name, params['name'])
 
+        self.assertRedirects(response, reverse("profiles.views.show", args=[new_profile.pk]))
+
+    @TestCaseEx.login
+    def test_adding_with_ajax_should_create_new_profile(self):
+        count_before = Profile.objects.count()
+        params = {
+            'text': '1928laksldjas',
+            'name': 'alsjdlaskdjlsd'
+        }
+        response = self.can_post("profiles.views.add", params, ajax=True)
+        self.assertEqual(count_before + 1, Profile.objects.count())
+
+        data = json.loads(response.content)
+
+        new_profile = Profile.objects.order_by("-pk").first()
+        self.assertEqual(data['fields']['text'], params['text'])
+        self.assertEqual(int(data['pk']), new_profile.pk)
+        self.assertEqual(new_profile.text, params['text'])
+        self.assertEqual(data['fields']['name'], params['name'])
+        self.assertEqual(new_profile.name, params['name'])
+
+
     def test_guest_cant_update(self):
         p = Profile.objects.create(name=u"some_new_name")
-        self.cant_post("profiles.views.update", pargs=[p.pk])
-        self.cant_get("profiles.views.update", pargs=[p.pk])
+        params = {
+            'text': '1928laksldjas',
+            'name': 'alsjdlaskdjlsd'
+        }
+        self.redirect_on_post("profiles.views.update", pargs=[p.pk], params=params)
+        self.redirect_on_get("profiles.views.update", pargs=[p.pk], params=params)
 
     @TestCaseEx.login
     def test_update_should_update_values(self):
-        p = Profile.objects.create(name="some_new_name")
+        p = Profile.objects.create(name=u"some_new_name")
 
         self.can_get("profiles.views.update", pargs=[p.pk])  # check that we can get update page
 
@@ -50,15 +77,38 @@ class TestProfilesViews(TestCaseEx):
             'text': '1928laksldjas',
             'name': 'alsjdlaskdjlsd'
         }
-        self.can_post("profiles.views.update", params)
+        response = self.redirect_on_post("profiles.views.update", params=params, pargs=[p.pk])
+        self.assertRedirects(response, reverse("profiles.views.show", args=[p.pk]))
+
         p = Profile.objects.get(pk=p.pk)
+
         self.assertEqual(p.text, params['text'])
+        self.assertEqual(p.name, params['name'])
+
+    @TestCaseEx.login
+    def test_update_with_ajax_should_update_values(self):
+        p = Profile.objects.create(name=u"some_new_name")
+
+        params = {
+            'text': '1928laksldjas',
+            'name': 'alsjdlaskdjlsd'
+        }
+        response = self.can_post("profiles.views.update", params=params, pargs=[p.pk], ajax=True)
+
+
+        data = json.loads(response.content)
+        p = Profile.objects.get(pk=p.pk)
+
+        self.assertEqual(data['fields']['text'], params['text'])
+        self.assertEqual(int(data['pk']), p.pk)
+        self.assertEqual(p.text, params['text'])
+        self.assertEqual(data['fields']['name'], params['name'])
         self.assertEqual(p.name, params['name'])
 
     def test_guest_cant_remove(self):
         p = Profile.objects.create(name=u"new item")
-        self.cant_post("profiles.views.remove", pargs=[p.pk])
-        self.cant_get("profiles.views.remove", pargs=[p.pk])
+        self.redirect_on_post("profiles.views.remove", pargs=[p.pk])
+        self.redirect_on_get("profiles.views.remove", pargs=[p.pk])
 
 
     @TestCaseEx.login
