@@ -1,3 +1,4 @@
 Django==1.7.5
 django-sekizai
-django-tastypie
+django-bootstrap3
+django-widget-tweaks

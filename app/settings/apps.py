@@ -7,7 +7,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tastypie',
+
     'sekizai', # to extend scripts and styles organization
-    "profiles", # common profiles application
+    'profiles', # common profiles application
+    'bootstrap3', # for bootstraping forms
 )
