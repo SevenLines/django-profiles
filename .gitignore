@@ -3,3 +3,4 @@ env
 static
 db
 *.pyc
+credentials.json

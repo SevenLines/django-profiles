@@ -4,7 +4,7 @@
 import os
 import sys
 
-from app.settings import BASE_DIR
+from app.settings import BASE_DIR, credentials
 
 
 if 'test' in sys.argv:
@@ -17,8 +17,5 @@ if 'test' in sys.argv:
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, os.path.join('db', 'db.sqlite3')),
-        }
+        'default': credentials['database']
     }

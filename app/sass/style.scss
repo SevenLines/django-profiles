@@ -1,3 +1,5 @@
+@import "const";
+
 .profiles-list {
   $profile-menu-offset: 6px;
   .profile-item {
@@ -17,5 +19,18 @@
       right: $profile-menu-offset;
       position: absolute;
     }
+  }
+}
+
+#profile-manager {
+  .btn {
+    @include transition(0.2s);
+  }
+  .user {
+    @include transition(0.2s);
+  }
+  .profile {
+    @include transition(0.1s);
+    cursor: pointer;
   }
 }

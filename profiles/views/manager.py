@@ -28,9 +28,15 @@ def manager(request):
 @atomic
 def update_profile_passkeys(request):
     """
-    this methods expects POST method,
+    this view expects POST method,
     expects the list of triples in profile_passkeys parameter
-    (profile, user, passkey)
+
+      {profile: 'profile_id', user: 'user_id', passkey: 'some_passkey'}
+
+    to mark triple as to remove add allowed parameter
+
+      {profile: 'profile_id', user: 'user_id', passkey: 'some_passkey', allowed: 'false'}
+
     """
     profiles_passkeys = json.loads(request.POST['profile_passkeys'])
     for profile_passkey in profiles_passkeys:
@@ -38,12 +44,14 @@ def update_profile_passkeys(request):
         user_id = profile_passkey['user']
 
         if 'allowed' in profile_passkey:
-            if profile_passkey['allowed'] == u'false':
+            if profile_passkey['allowed'] == False:
                 ppk = ProfilePasskeys.objects.filter(profile_id=profile_id, user_id=user_id)
                 ppk.delete()
                 continue
 
         passkey = profile_passkey['passkey']
+        if passkey == '':
+            continue
         ppk, _ = ProfilePasskeys.objects.get_or_create(profile_id=profile_id, user_id=user_id)
         ppk.passkey = passkey
         ppk.save()

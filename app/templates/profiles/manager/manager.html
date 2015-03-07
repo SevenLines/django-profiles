@@ -1,7 +1,7 @@
 {% extends "profiles/manager/base.html" %}
 {% load sekizai_tags static %}
 {% block manager_content %}
-    <div ng-app="manager-app">
+    <div ng-app="manager-app" id="profile-manager">
         {% verbatim %}
         <div class="row">
             <div class="col-md-6" ng-controller="ProfilesCtrl">
@@ -39,7 +39,9 @@
 
                 <ul class="list-group" ng-show="info.profile">
 
-                    <li class="list-group-item user" ng-repeat="user in users | filter:query">
+                    <li class="list-group-item user"
+                        ng-repeat="user in users | filter:query"
+                            ng-class="{'list-group-item-success': user.changed() }">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="input-group">
@@ -55,14 +57,18 @@
                                     <div class="btn btn-default passkey" ng-click="user.regenPassword()">
                                         <span class="glyphicon glyphicon-refresh"></span>
                                     </div>
+                                    <div class="btn btn-default save" ng-click="send()">
+                                        <span class="glyphicon glyphicon-send"></span>
+                                    </div>
                                     <div class="btn access"
                                          ng-click="user.toggleAllowed()"
                                          ng-class="{'btn-success':user.allowed[info.profile.id],
-                                                    'btn-danger': !user.allowed[info.profile.id] }"
-                                            >
+                                                    'btn-danger': !user.allowed[info.profile.id] }">
                                         <span class="glyphicon glyphicon-lock"></span>
                                     </div>
-                                    <div class="btn btn-success save" ng-click="lock(user)">
+                                    <div class="btn save" ng-click="save()"
+                                            ng-class="{'btn-success':user.changed(),
+                                                    'btn-default': !user.changed() }">
                                         <span class="glyphicon glyphicon-save"></span>
                                     </div>
                                 </div>
@@ -80,6 +86,7 @@
 
         <script>
             commonUrls = {
+                'update_profiles_passkeys': '{% url "profiles.views.manager.update_profile_passkeys" %}',
                 'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
                 'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json',
                 'profilepasskeys': '{% url "api_dispatch_list" resource_name="profilepasskeys" api_name='v1' %}?format=json',

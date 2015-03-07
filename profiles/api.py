@@ -13,6 +13,10 @@ class ProfileResource(ModelResource):
 
 
 class UserResource(ModelResource):
+
+    def get_object_list(self, request):
+        return super(UserResource, self).get_object_list(request).filter(is_superuser=False)
+
     class Meta:
         queryset = User.objects.all()
 

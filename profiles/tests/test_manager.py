@@ -60,7 +60,7 @@ class TestManagerViews(TestCaseEx):
         self.assertEqual(passkey.passkey, u'54321')
 
     @TestCaseEx.superuser
-    def test_update_profile_passkeys_can_create_new_passkkey_triple(self):
+    def test_update_profile_passkeys_can_create_new_passkey_triple(self):
         ProfilePasskeys.objects.all().delete()
 
         profile = Profile.objects.create(name=u"name")
@@ -85,8 +85,8 @@ class TestManagerViews(TestCaseEx):
         profile = Profile.objects.create(name=u"name")
         profile2 = Profile.objects.create(name=u"name2")
         user = User.objects.first()
-        passkey = ProfilePasskeys.objects.create(profile=profile, user=user, passkey=u'12345')
-        passkey = ProfilePasskeys.objects.create(profile=profile2, user=user, passkey=u'12345')
+        ProfilePasskeys.objects.create(profile=profile, user=user, passkey=u'12345')
+        ProfilePasskeys.objects.create(profile=profile2, user=user, passkey=u'12345')
 
         new_values = {
             "profile_passkeys": json.dumps([
