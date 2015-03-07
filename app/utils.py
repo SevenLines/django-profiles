@@ -110,16 +110,31 @@ def add_cross_domain(http_response):
     return http_response
 
 
+
+
 class TestCaseEx(TestCase):
+    """
+    Extended TestCase class with ability to login, logout and some helpers methods
+    """
     password = '12345'
 
     def setUp(self):
         self.root = User.objects.create_superuser('root', 'mailm@mail.ru', self.password)
+        self.user = User.objects.create_user('default', 'admin@admin.ru', self.password)
+
+    @staticmethod
+    def superuser(fn):
+        def _wrapper(self=None):
+            self.client.login(username=self.root.username, password=self.password)
+            fn(self)
+            self.client.logout()
+
+        return _wrapper
 
     @staticmethod
     def login(fn):
         def _wrapper(self=None):
-            self.client.login(username=self.root.username, password=self.password)
+            self.client.login(username=self.user.username, password=self.password)
             fn(self)
             self.client.logout()
 

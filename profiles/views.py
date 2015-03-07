@@ -1,11 +1,11 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.serializers import json, serialize
 from django.core.urlresolvers import reverse
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 
 # Create your views here.
-from tastypie.http import HttpBadRequest
 from profiles.forms import ProfileForm
 from profiles.models import Profile
 
@@ -18,6 +18,13 @@ def index(request):
 
 def show(request, id):
     profile = get_object_or_404(Profile, pk=id)
+    return render(request, "profiles/show.html", {
+        'profile': profile
+    })
+
+
+def show_by_slug(request, slug):
+    profile = get_object_or_404(Profile, slug=slug)
     return render(request, "profiles/show.html", {
         'profile': profile
     })
@@ -44,13 +51,16 @@ def add(request):
             if request.is_ajax():
                 return HttpResponse(serialize('json', [profile, ]).strip("[]"))
             else:
-                return redirect(reverse("profiles.views.show", args=[profile.pk]))
+                if profile.slug:
+                    return redirect(reverse("profiles.views.show_by_slug", args=[profile.slug]))
+                else:
+                    return redirect(reverse("profiles.views.show", args=[profile.pk]))
         else:
             if request.is_ajax():
                 return HttpResponse(serialize('json', form.errors))
             else:
                 return render(request, "profiles/add.html", context)
-    return HttpBadRequest()
+    return HttpResponseBadRequest()
 
 
 @login_required
@@ -87,10 +97,22 @@ def update(request, id):
             if request.is_ajax():
                 return HttpResponse(serialize('json', [profile, ]).strip("[]"))
             else:
-                return redirect(reverse("profiles.views.show", args=[profile.pk]))
+                if profile.slug:
+                    return redirect(reverse("profiles.views.show_by_slug", args=[profile.slug]))
+                else:
+                    return redirect(reverse("profiles.views.show", args=[profile.pk]))
         else:
             if request.is_ajax():
                 return render(request, "profiles/update.html", context)
             else:
                 return HttpResponse(serialize('json', form.errors))
     return HttpResponse()
+
+
+@login_required
+def manager(request):
+    context = {
+        'users': User.objects.all(),
+        'profiles': Profile.objects.all(),
+    }
+    return render(request, "profiles/manager.html", context)

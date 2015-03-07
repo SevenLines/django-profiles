@@ -12,7 +12,7 @@ class TestProfilesViews(TestCaseEx):
         p = Profile.objects.create(name=u"somename")
         self.can_get("profiles.views.show", pargs=[p.pk])
 
-    @TestCaseEx.login
+    @TestCaseEx.superuser
     def test_logged_user_can_see_more_data(self):
         pass
 
@@ -20,7 +20,7 @@ class TestProfilesViews(TestCaseEx):
         self.redirect_on_post("profiles.views.add")
         self.redirect_on_get("profiles.views.add")
 
-    @TestCaseEx.login
+    @TestCaseEx.superuser
     def test_adding_should_create_new_profile(self):
         self.can_get("profiles.views.add")  # check that we can get add page
 
@@ -36,9 +36,9 @@ class TestProfilesViews(TestCaseEx):
         self.assertEqual(new_profile.text, params['text'])
         self.assertEqual(new_profile.name, params['name'])
 
-        self.assertRedirects(response, reverse("profiles.views.show", args=[new_profile.pk]))
+        self.assertRedirects(response, reverse("profiles.views.show_by_slug", args=[new_profile.slug]))
 
-    @TestCaseEx.login
+    @TestCaseEx.superuser
     def test_adding_with_ajax_should_create_new_profile(self):
         count_before = Profile.objects.count()
         params = {
@@ -67,7 +67,7 @@ class TestProfilesViews(TestCaseEx):
         self.redirect_on_post("profiles.views.update", pargs=[p.pk], params=params)
         self.redirect_on_get("profiles.views.update", pargs=[p.pk], params=params)
 
-    @TestCaseEx.login
+    @TestCaseEx.superuser
     def test_update_should_update_values(self):
         p = Profile.objects.create(name=u"some_new_name")
 
@@ -78,14 +78,14 @@ class TestProfilesViews(TestCaseEx):
             'name': 'alsjdlaskdjlsd'
         }
         response = self.redirect_on_post("profiles.views.update", params=params, pargs=[p.pk])
-        self.assertRedirects(response, reverse("profiles.views.show", args=[p.pk]))
 
         p = Profile.objects.get(pk=p.pk)
+        self.assertRedirects(response, reverse("profiles.views.show_by_slug", args=[p.slug]))
 
         self.assertEqual(p.text, params['text'])
         self.assertEqual(p.name, params['name'])
 
-    @TestCaseEx.login
+    @TestCaseEx.superuser
     def test_update_with_ajax_should_update_values(self):
         p = Profile.objects.create(name=u"some_new_name")
 
@@ -111,7 +111,7 @@ class TestProfilesViews(TestCaseEx):
         self.redirect_on_get("profiles.views.remove", pargs=[p.pk])
 
 
-    @TestCaseEx.login
+    @TestCaseEx.superuser
     def test_remove_should_remove_profile(self):
         p = Profile.objects.create(name=u"new item")
         self.assertEqual(1, Profile.objects.filter(pk=p.pk).count())
@@ -121,7 +121,7 @@ class TestProfilesViews(TestCaseEx):
 
         self.assertEqual(0, Profile.objects.filter(pk=p.pk).count())
 
-    @TestCaseEx.login
+    @TestCaseEx.superuser
     def test_remove_on_ajax_should_remove_profile(self):
         p = Profile.objects.create(name=u"new item")
         self.assertEqual(1, Profile.objects.filter(pk=p.pk).count())

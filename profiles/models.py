@@ -1,5 +1,6 @@
 import datetime
 from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
 
@@ -25,14 +26,13 @@ class ProfileBase(models.Model):
         self.modified = datetime.datetime.today()
 
         # For automatic slug generation.
-        if not self.slug:
-            self.slug = slugify(self.name)[:50]
+        self.slug = slugify(self.name)[:50]
         return super(ProfileBase, self).save(*args, **kwargs)
 
 
 # class ProfilePasswords(ProfileBase):
 # """
-#     model for storing associated with
+# model for storing associated with
 #     """
 #     profile = models.ForeignKey('Profile')
 #     passkey = models.CharField(max_length=128)
@@ -56,3 +56,10 @@ class ProfileBase(models.Model):
 # Create your models here.
 class Profile(ProfileBase):
     pass
+
+
+class ProfilePasskeys(models.Model):
+    profile = models.ForeignKey(Profile)
+    user = models.ForeignKey(User)
+    passkey = models.CharField(max_length=128)
+

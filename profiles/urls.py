@@ -11,7 +11,9 @@ urlpatterns = patterns("profiles.views",
    url(r'(?P<id>\d+)/show/$', "show"),
    url(r'(?P<id>\d+)/update/$', "update"),
    url(r'(?P<id>\d+)/remove/$', "remove"),
+   url(r'manager/$', "manager"),
    url(r'add/$', "add"),
+   url(r'(?P<slug>[\w-]+)/$', "show_by_slug"),
    url(r'$', "index"),
 )
 
