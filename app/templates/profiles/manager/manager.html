@@ -78,8 +78,10 @@
                                     <div class="btn btn-default passkey" ng-click="user.regenPassword()">
                                         <span class="glyphicon glyphicon-refresh"></span>
                                     </div>
-                                    <div class="btn btn-default save" ng-click="user.sendPasskeyToEmail()">
-                                        <span class="glyphicon glyphicon-send"></span>
+                                    <div class="btn btn-default save"
+                                         ng-click="user.sendPasskeyToEmail()">
+                                        <span class="glyphicon glyphicon-send"
+                                              ng-class="{'glyphicon-refresh-animate': user.sending_email}"></span>
                                     </div>
                                     <div class="btn access"
                                          ng-click="user.toggleAllowed()"

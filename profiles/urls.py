@@ -17,9 +17,9 @@ urlpatterns = patterns("profiles.views",
    url(r'(?P<id>\d+)/enter-passkey/', "profile.provide_passkey"),
    url(r'add/$', "profile.add"),
 
-   url(r'manager/$', "manager.manager"),
-   url(r'manager/send-passkey-email$', "manager.send_passkey_to_email"),
    url(r'manager/update-profile-passkeys/', "manager.update_profile_passkeys"),
+   url(r'manager/send-passkey-email$', "manager.send_passkey_to_email"),
+   url(r'manager/$', "manager.manager"),
 
    url(r'api/', include(v1_api.urls)),
    url(r'(?P<slug>[\w-]+)/$', "profile.show_by_slug"),

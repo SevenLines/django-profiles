@@ -28,6 +28,10 @@ def manager(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_in_POST("user_id", "profile_id")
 def send_passkey_to_email(request,):
+    """
+    sends message to user with info about new password
+    :return:
+    """
     user = get_object_or_404(User, pk=request.POST['user_id'])
     profile = get_object_or_404(Profile, pk=request.POST['profile_id'])
 
