@@ -30,32 +30,8 @@ class ProfileBase(models.Model):
         return super(ProfileBase, self).save(*args, **kwargs)
 
 
-# class ProfilePasswords(ProfileBase):
-# """
-# model for storing associated with
-# """
-#     profile = models.ForeignKey('Profile')
-#     passkey = models.CharField(max_length=128)
-#
-#     def set_passkey(self, raw_passkey):
-#         self.passkey = make_password(raw_passkey)
-#
-#     def check_password(self, raw_passkey):
-#         """
-#         Returns a boolean of whether the raw_password was correct. Handles
-#         hashing formats behind the scenes.
-#         """
-#
-#         def setter(raw_passkey):
-#             self.set_password(raw_passkey)
-#             self.save(update_fields=["passkey"])
-#
-#         return check_password(raw_passkey, self.passkey, setter)
-
-
 # Create your models here.
 class Profile(ProfileBase):
-
     @staticmethod
     def list_accessed_by(user):
         """
