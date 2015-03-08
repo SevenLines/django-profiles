@@ -4,7 +4,9 @@
     <div ng-app="manager-app" id="profile-manager">
         {% verbatim %}
         <div class="row">
+            <!-- PROFILES CONTROLLER -->
             <div class="col-md-6" ng-controller="ProfilesCtrl">
+                <!-- PROFILES FILTER -->
                 <ul class="list-group">
                     <li class="list-group-item">
                         <div class="input-group">
@@ -18,6 +20,7 @@
                         </div>
                     </li>
                 </ul>
+                <!-- end PROFILES FILTER -->
                 <div class="list-group">
                     <div class="list-group-item profile"
                          ng-repeat="profile in profiles | filter:query"
@@ -27,7 +30,11 @@
                     </div>
                 </div>
             </div>
+            <!-- end PROFILES CONTROLLER -->
+
+            <!-- USERS CONTROLLER -->
             <div class="col-md-6" ng-controller="UsersCtrl">
+                <!-- USERS FILTER -->
                 <ul class="list-group">
                     <li class="list-group-item">
                         <div class="input-group">
@@ -41,6 +48,7 @@
                         </div>
                     </li>
                 </ul>
+                <!-- end USERS FILTER -->
                 <ul class="list-group" ng-show="info.profile" ng-hide="info.profile">
                     <li class="list-group-item">
                         Select profile before start to work with users
@@ -59,7 +67,7 @@
                                     <div class="input-group-addon">
                                         {{ user.username }}
                                     </div>
-                                    <input type="text" name="passkey" class="form-control"
+                                    <input type="text" name="passkey" class="form-control" placeholder="password"
                                            ng-model="user.passkeys[info.profile.id]"
                                            ng-change="user.passkeyChanged()"
                                             />
@@ -70,7 +78,7 @@
                                     <div class="btn btn-default passkey" ng-click="user.regenPassword()">
                                         <span class="glyphicon glyphicon-refresh"></span>
                                     </div>
-                                    <div class="btn btn-default save" ng-click="send()">
+                                    <div class="btn btn-default save" ng-click="user.sendPasskeyToEmail()">
                                         <span class="glyphicon glyphicon-send"></span>
                                     </div>
                                     <div class="btn access"
@@ -91,6 +99,7 @@
                 </ul>
             </div>
         </div>
+        <!-- end USERS CONTROLLER -->
     </div>
     {% endverbatim %}
     {% addtoblock "js" %}
@@ -99,6 +108,7 @@
 
         <script>
             commonUrls = {
+                'send_passkey_to_email': '{% url "profiles.views.manager.send_passkey_to_email" %}',
                 'update_profiles_passkeys': '{% url "profiles.views.manager.update_profile_passkeys" %}',
                 'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
                 'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json',

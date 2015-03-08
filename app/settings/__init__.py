@@ -61,3 +61,6 @@ USE_TZ = True
 EMAIL_HOST = credentials.get("EMAIL_HOST", 'localhost')
 EMAIL_HOST_USER = credentials.get("EMAIL_HOST_USER", '')
 EMAIL_HOST_PASSWORD = credentials.get("EMAIL_HOST_PASSWORD", '')
+EMAIL_USERNAME = credentials.get("EMAIL_USERNAME", '')
+EMAIL_PORT = credentials.get("EMAIL_PORT", 587)
+EMAIL_USE_TLS = credentials.get("EMAIL_USE_TLS", True)

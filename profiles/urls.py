@@ -18,18 +18,10 @@ urlpatterns = patterns("profiles.views",
    url(r'add/$', "profile.add"),
 
    url(r'manager/$', "manager.manager"),
-   url(r'manager/profile/(?P<profile_id>\d+)/check_passkey', "manager.check_passkey"),
+   url(r'manager/send-passkey-email$', "manager.send_passkey_to_email"),
    url(r'manager/update-profile-passkeys/', "manager.update_profile_passkeys"),
 
    url(r'api/', include(v1_api.urls)),
    url(r'(?P<slug>[\w-]+)/$', "profile.show_by_slug"),
    url(r'$', "profile.index"),
 )
-
-
-# if settings.DEBUG:
-urlpatterns = patterns('',
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
-        {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
-    url(r'', include('django.contrib.staticfiles.urls')),
-) + urlpatterns
