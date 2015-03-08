@@ -8,7 +8,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_assets', # for assets minification
     'sekizai', # to extend scripts and styles organization
+
     'profiles', # common profiles application
     'bootstrap3', # for bootstraping forms
 )

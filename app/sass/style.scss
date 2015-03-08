@@ -32,5 +32,11 @@
   .profile {
     @include transition(0.1s);
     cursor: pointer;
+    &:hover {
+      &.active {
+        background-color: #24678f;
+      }
+      background-color: #eeeeee;
+    }
   }
 }

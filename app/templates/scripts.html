@@ -1,6 +1,6 @@
-{% load sekizai_tags static %}
+{% load sekizai_tags static assets%}
 {% addtoblock "core-js" %}
-    <script src="{% static "vendor/jquery/dist/jquery.min.js" %}"></script>
-    <script src="{% static "vendor/jquery-cookie/jquery.cookie.js" %}"></script>
-    <script src="{% static "vendor/lodash/lodash.min.js" %}"></script>
+    {% assets "base-js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {% endaddtoblock %}

@@ -1,4 +1,10 @@
 Django==1.7.5
-django-sekizai
-django-bootstrap3
-django-widget-tweaks
+django-sekizai # django extended blocks
+django-bootstrap3 # form and messages bootstraping
+django-widget-tweaks # tags for adding classes to django form fields
+django-tastypie # REST lib
+
+# assets minification
+django-assets
+jsmin
+cssmin

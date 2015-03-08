@@ -4,7 +4,7 @@
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 import os
 
-from app.settings import BASE_DIR
+from app.settings import BASE_DIR, DEBUG
 
 # URL to use when referring to static files located in STATIC_ROOT.
 STATIC_URL = '/static/'
@@ -16,6 +16,12 @@ STATICFILES_DIRS = (
 )
 # The absolute path to the directory where collectstatic will collect static files for deployment.
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_FINDERS = (
+   "django.contrib.staticfiles.finders.FileSystemFinder",
+   "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+   "django_assets.finders.AssetsFinder"
+)
 
 # Note that these paths should use Unix-style forward slashes, even on Windows.
 TEMPLATE_DIRS = (

@@ -30,7 +30,7 @@ except BaseException as e:
 SECRET_KEY = 'rbt3_6pnv)@ax*%yqd**5i$kc!zn5er%_)lr9pp6&&l81x12&@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(credentials.get('DEBUG', 0)) == 1
+DEBUG = credentials.get("DEBUG", "False") == "True"
 TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = credentials.get("ALLOWED_HOSTS", ['*', ])
@@ -39,6 +39,7 @@ from app.settings.apps import *
 from app.settings.middleware import *
 from app.settings.database import *
 from app.settings.dirs import *
+from app.settings.assets import *
 
 ROOT_URLCONF = 'app.urls'
 

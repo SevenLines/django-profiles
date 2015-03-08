@@ -1,5 +1,6 @@
-{% load sekizai_tags static %}
+{% load sekizai_tags static assets %}
 {% addtoblock "core-css" %}
-    <link rel="stylesheet" href="{% static "vendor/bootstrap/dist/css/bootstrap.css" %}"/>
-    <link rel="stylesheet" href="{% static "css/style.css" %}"/>
+    {% assets "base-css" %}
+        <link rel="stylesheet" href="{{ASSET_URL}}"/>
+    {% endassets %}
 {% endaddtoblock %}
