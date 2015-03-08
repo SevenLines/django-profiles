@@ -28,7 +28,7 @@ def manager(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_in_POST("user_id", "profile_id")
-def send_passkey_to_email(request,):
+def send_passkey_to_email(request, ):
     """
     sends message to user with info about new password
     :return:
@@ -45,7 +45,11 @@ def send_passkey_to_email(request,):
         "profile_update_url": request.build_absolute_uri(reverse('profiles.views.profile.update', args=[profile.pk]))
     })
 
-    user.email_user("New passkey", strip_tags(message_html), settings.EMAIL_USERNAME, fail_silently=False, html_message=message_html)
+    try:
+        user.email_user("New passkey", strip_tags(message_html), settings.EMAIL_USERNAME,
+                    html_message=message_html)
+    except Exception as e:
+        return HttpResponseBadRequest()
 
     return HttpResponse()
 

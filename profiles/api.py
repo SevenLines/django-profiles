@@ -33,6 +33,7 @@ class UserResource(ModelResource):
         return super(UserResource, self).get_object_list(request).filter(is_superuser=False, is_active=True)
 
     class Meta:
+        excludes = ['is_active', 'is_staff', 'is_superuser', 'password']
         queryset = User.objects.all()
         authentication = SuperuserAuthentication()
 
