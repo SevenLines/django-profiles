@@ -41,12 +41,15 @@
   }
 }
 
-
 .glyphicon-refresh-animate {
   @include animation(spin .7s infinite linear);
 }
 
 @include keyframes(spin) {
-    from { -webkit-transform: scale(1) rotate(0deg);}
-    to { -webkit-transform: scale(1) rotate(360deg);}
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

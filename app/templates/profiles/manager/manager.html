@@ -1,5 +1,5 @@
 {% extends "profiles/manager/base.html" %}
-{% load sekizai_tags static %}
+{% load sekizai_tags static assets %}
 {% block manager_content %}
     <div ng-app="manager-app" id="profile-manager">
         {% verbatim %}
@@ -105,9 +105,6 @@
     </div>
     {% endverbatim %}
     {% addtoblock "js" %}
-        <script src="{% static "vendor/angular/angular.js" %}"></script>
-        <script src="{% static "js/manager/app.js" %}"></script>
-
         <script>
             commonUrls = {
                 'send_passkey_to_email': '{% url "profiles.views.manager.send_passkey_to_email" %}',
@@ -117,5 +114,9 @@
                 'profilepasskeys': '{% url "api_dispatch_list" resource_name="profilepasskeys" api_name='v1' %}?format=json',
             }
         </script>
+
+        {% assets 'profiles-manager-js' %}
+            <script src="{{ ASSET_URL }}"></script>
+        {% endassets %}
     {% endaddtoblock %}
 {% endblock %}

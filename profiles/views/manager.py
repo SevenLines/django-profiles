@@ -9,6 +9,7 @@ from django.db.transaction import atomic
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.views.decorators.http import require_POST
 from app.utils import require_in_POST, require_in_GET
 
@@ -43,14 +44,8 @@ def send_passkey_to_email(request,):
         "passkey": passkey,
         "profile_update_url": request.build_absolute_uri(reverse('profiles.views.profile.update', args=[profile.pk]))
     })
-    message_text = render_to_string("profiles/emails/passkey_update_text.html", {
-        "user": user,
-        "profile": profile,
-        "passkey": passkey,
-        "profile_update_url": request.build_absolute_uri(reverse('profiles.views.profile.update', args=[profile.pk]))
-    })
 
-    user.email_user("New passkey", message_text, settings.EMAIL_USERNAME, fail_silently=False, html_message=message_html)
+    user.email_user("New passkey", strip_tags(message_html), settings.EMAIL_USERNAME, fail_silently=False, html_message=message_html)
 
     return HttpResponse()
 
