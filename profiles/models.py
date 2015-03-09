@@ -26,7 +26,10 @@ class ProfileBase(models.Model):
         self.modified = datetime.datetime.today()
 
         # For automatic slug generation.
-        self.slug = slugify(self.name)[:50]
+        if self.name:
+            self.slug = slugify(self.name)[:50]
+        else:
+            self.slug = unicode(self.pk)
         return super(ProfileBase, self).save(*args, **kwargs)
 
 

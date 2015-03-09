@@ -7,8 +7,63 @@ from profiles.views.profile import session_passkeys
 
 
 class TestProfilesViews(TestCaseEx):
+
     def test_anyone_can_see_index_page(self):
-        self.can_get("profiles.views.profile.index")
+        # everyone can see profiles without passkeys
+        p1 = Profile.objects.create(name=u"a;sldjalk sjm900q ufasjflk aks")
+        p2 = Profile.objects.create(name=u"j iosdiaus0d aus08h32ea;ldi ")
+        p3 = Profile.objects.create(name=u";la sk d;lasjdlk hask;dj")
+
+        response = self.can_get("profiles.views.profile.index")
+        self.assertContains(response, p1.name)
+        self.assertContains(response, p2.name)
+        self.assertContains(response, p3.name)
+
+        Alice = User.objects.create_user("Alice", password="Alice")
+        Bob = User.objects.create_user("Bob", password="Bob")
+
+        # logged users as well can see all profiles without passkeys
+        self.client.login(username="Alice", password="Alice")
+        response = self.can_get("profiles.views.profile.index")
+        self.assertContains(response, p1.name)
+        self.assertContains(response, p2.name)
+        self.assertContains(response, p3.name)
+
+        # but Alice canT see profiles assigned to Bob
+        ProfilePasskeys.objects.create(user=Bob, profile=p1)
+        response = self.can_get("profiles.views.profile.index")
+        self.assertNotContains(response, p1.name)
+        self.assertContains(response, p2.name)
+        self.assertContains(response, p3.name)
+
+        self.client.logout()
+
+        # while Bob CAN see all profiles
+        self.client.login(username="Bob", password="Bob")
+        response = self.can_get("profiles.views.profile.index")
+        self.assertContains(response, p1.name)
+        self.assertContains(response, p2.name)
+        self.assertContains(response, p3.name)
+
+        self.client.logout()
+
+        # guest cant see profiles with passkeys
+        ProfilePasskeys.objects.create(user=Alice, profile=p3)
+        response = self.can_get("profiles.views.profile.index")
+        self.assertNotContains(response, p1.name)
+        self.assertContains(response, p2.name)
+        self.assertNotContains(response, p3.name)
+
+        # while superuser always CAN see all profiles
+        self.client.login(username=self.root.username, password=self.password)
+        response = self.can_get("profiles.views.profile.index")
+        self.assertContains(response, p1.name)
+        self.assertContains(response, p2.name)
+        self.assertContains(response, p3.name)
+
+        self.client.logout()
+
+
 
     def test_if_profile_dont_have_users_anyone_can_see_it(self):
         p = Profile.objects.create()
@@ -28,17 +83,18 @@ class TestProfilesViews(TestCaseEx):
         self.assertRedirects(response, reverse("profiles.views.profile.provide_passkey", args=[p.pk]))
         self.client.logout()
 
-        # associated user can with correct passkey
+        # but associated user can with correct passkey
         self.client.login(username=user, password="123")
         session = self.client.session
         session[session_passkeys] = {
             p.id: "coolpasskey"
         }
         session.save()
-        self.can_get("profiles.views.profile.show", pargs=[p.pk])
 
+        self.can_get("profiles.views.profile.show", pargs=[p.pk])
         #user dont need to enter password two times
         self.can_get("profiles.views.profile.show", pargs=[unicode(p.pk)])
+
         self.client.logout()
 
 
