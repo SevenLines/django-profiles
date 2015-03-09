@@ -1,6 +1,6 @@
 .idea
 env
-static
+/static
 db
 *.pyc
 credentials.json

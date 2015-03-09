@@ -1,0 +1,66 @@
+.profiles-list .profile-item {
+  width: 33.3%;
+  float: left;
+  padding: 0 0.5em 1em; }
+  .profiles-list .profile-item .profile-content {
+    position: relative;
+    padding: 1em;
+    display: block;
+    height: 250px;
+    border: 1px solid black;
+    border-radius: 6px; }
+  .profiles-list .profile-item .profile-menu {
+    top: 6px;
+    right: 6px;
+    position: absolute; }
+
+#profile-manager .btn {
+  -webkit-transition: all ease-in-out 0.2s;
+  -moz-transition: all ease-in-out 0.2s;
+  -ms-transition: all ease-in-out 0.2s;
+  -o-transition: all ease-in-out 0.2s;
+  transition: all ease-in-out 0.2s; }
+#profile-manager .user {
+  -webkit-transition: all ease-in-out 0.2s;
+  -moz-transition: all ease-in-out 0.2s;
+  -ms-transition: all ease-in-out 0.2s;
+  -o-transition: all ease-in-out 0.2s;
+  transition: all ease-in-out 0.2s; }
+#profile-manager .profile {
+  -webkit-transition: all ease-in-out 0.1s;
+  -moz-transition: all ease-in-out 0.1s;
+  -ms-transition: all ease-in-out 0.1s;
+  -o-transition: all ease-in-out 0.1s;
+  transition: all ease-in-out 0.1s;
+  cursor: pointer; }
+  #profile-manager .profile:hover {
+    background-color: #eeeeee; }
+    #profile-manager .profile:hover.active {
+      background-color: #24678f; }
+
+.glyphicon-refresh-animate {
+  -webkit-animation: spin 0.7s infinite linear;
+  -moz-animation: spin 0.7s infinite linear;
+  -o-animation: spin 0.7s infinite linear;
+  animation: spin 0.7s infinite linear; }
+
+@-webkit-keyframes spin {
+  from {
+    transform: rotate(0deg); }
+
+  to {
+    transform: rotate(360deg); } }
+
+@-moz-keyframes spin {
+  from {
+    transform: rotate(0deg); }
+
+  to {
+    transform: rotate(360deg); } }
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg); }
+
+  to {
+    transform: rotate(360deg); } }
