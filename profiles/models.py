@@ -2,6 +2,7 @@ import datetime
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.utils.text import slugify
 
 
@@ -41,10 +42,13 @@ class Profile(ProfileBase):
         :param user:
         :return: profiles which can be accessed by user
         """
+        profiles_for_user = ProfilePasskeys.objects.filter(user_id=user.id).values("profile_id").distinct()
+        profiles_with_passkeys = ProfilePasskeys.objects.values("profile_id").distinct()
+        profiles_without_passkeys = Profile.objects.exclude(pk__in=profiles_with_passkeys).values("id")
         if user.is_superuser:
             return Profile.objects.all()
         else:
-            return Profile.objects.filter(pk__in=ProfilePasskeys.objects.filter(user_id=user.pk).values("profile_id"))
+            return Profile.objects.filter(Q(pk__in=profiles_for_user)|Q(pk__in=profiles_without_passkeys))
 
     def can_be_accessed(self, passkey, user):
         """

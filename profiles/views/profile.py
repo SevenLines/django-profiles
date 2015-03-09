@@ -70,8 +70,7 @@ def index(request):
         profiles = Profile.objects.filter(Q(pk__in=profiles_for_user)|Q(pk__in=profiles_without_passkeys))
 
     return render(request, "profiles/index.html", {
-        'profiles': profiles,
-        'allowed_profiles_id': Profile.list_accessed_by(request.user).values_list("pk", flat=True),
+        'profiles': Profile.list_accessed_by(request.user),
     })
 
 
