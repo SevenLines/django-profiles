@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.serializers import json, serialize
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -25,10 +26,10 @@ def check_passkey(fn):
 
         passkeys = request.session.get(session_passkeys)
         pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
-        if passkeys and id in passkeys and passkeys[id] == pkk.passkey:
+        if passkeys and unicode(id) in passkeys and passkeys[unicode(id)] == pkk.passkey:
             return fn(request, id)
         else:
-            if passkeys and id in passkeys:
+            if passkeys and unicode(id) in passkeys:
                 messages.warning(request, 'wrong passkey')
             return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
 
@@ -60,8 +61,16 @@ def provide_passkey(request, id):
 
 
 def index(request):
+    profiles_for_user = ProfilePasskeys.objects.filter(user_id=request.user.id).values("profile_id").distinct()
+    profiles_with_passkeys = ProfilePasskeys.objects.values("profile_id").distinct()
+    profiles_without_passkeys = Profile.objects.exclude(pk__in=profiles_with_passkeys).values("id")
+    if request.user.is_superuser:
+        profiles = Profile.objects.all()
+    else:
+        profiles = Profile.objects.filter(Q(pk__in=profiles_for_user)|Q(pk__in=profiles_without_passkeys))
+
     return render(request, "profiles/index.html", {
-        'profiles': Profile.objects.all(),
+        'profiles': profiles,
         'allowed_profiles_id': Profile.list_accessed_by(request.user).values_list("pk", flat=True),
     })
 
@@ -83,10 +92,10 @@ def show(request, id):
     else:
         pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
         passkeys = request.session.get(session_passkeys)
-        if passkeys and id in passkeys and passkeys[id] == pkk.passkey:
+        if passkeys and unicode(id) in passkeys and passkeys[unicode(id)] == pkk.passkey:
             return render_show_view(profile)
         else:
-            if passkeys and id in passkeys:
+            if passkeys and unicode(id) in passkeys:
                 messages.warning(request, 'wrong passkey')
             return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
 

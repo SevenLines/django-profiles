@@ -36,7 +36,11 @@ class TestProfilesViews(TestCaseEx):
         }
         session.save()
         self.can_get("profiles.views.profile.show", pargs=[p.pk])
+
+        #user dont need to enter password two times
+        self.can_get("profiles.views.profile.show", pargs=[unicode(p.pk)])
         self.client.logout()
+
 
     def test_if_profile_have_associated_users_they_should_provide_passkey_to_view_it(self):
         p = Profile.objects.create()
