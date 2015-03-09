@@ -148,8 +148,9 @@ def remove(request, id):
         return redirect(reverse("profiles.views.profile.index"))
 
 
-@login_required
-@check_passkey
+# @login_required
+# @check_passkey
+@user_passes_test(lambda u: u.is_superuser)
 def update(request, id):
     """
     updates profile by id, on GET returns common profile-update-page
