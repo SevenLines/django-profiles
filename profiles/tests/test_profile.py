@@ -10,13 +10,46 @@ class TestProfilesViews(TestCaseEx):
     def test_anyone_can_see_index_page(self):
         self.can_get("profiles.views.profile.index")
 
-    def test_anyone_can_check_profile(self):
-        p = Profile.objects.create(name=u"somename")
+    def test_if_profile_dont_have_users_anyone_can_see_it(self):
+        p = Profile.objects.create()
         self.can_get("profiles.views.profile.show", pargs=[p.pk])
 
+    def test_if_profile_have_associated_users_only_they_can_see_it(self):
+        p = Profile.objects.create()
+        user = User.objects.create_user("user2", password="123")
+        ProfilePasskeys.objects.create(user=user, profile=p, passkey="coolpasskey")
+
+        # guest cant see that profile
+        self.redirect_to_login_on_get("profiles.views.profile.show", pargs=[p.pk])
+
+        # associated user cant without provided passkey
+        self.client.login(username=user, password="123")
+        response = self.redirect_on_get("profiles.views.profile.show", pargs=[p.pk])
+        self.assertRedirects(response, reverse("profiles.views.profile.provide_passkey", args=[p.pk]))
+        self.client.logout()
+
+        # associated user can with correct passkey
+        self.client.login(username=user, password="123")
+        session = self.client.session
+        session[session_passkeys] = {
+            p.id: "coolpasskey"
+        }
+        session.save()
+        self.can_get("profiles.views.profile.show", pargs=[p.pk])
+        self.client.logout()
+
+    def test_if_profile_have_associated_users_they_should_provide_passkey_to_view_it(self):
+        p = Profile.objects.create()
+        user = User.objects.create_user("user2", password="123")
+        ProfilePasskeys.objects.create(user=user, profile=p)
+
     @TestCaseEx.superuser
-    def test_logged_user_can_see_more_data(self):
-        pass
+    def test_superuser_can_see_all_profiles(self):
+        p = Profile.objects.create()
+        user = User.objects.create_user("user3", password="123")
+        ProfilePasskeys.objects.create(user=user, profile=p)
+
+        self.can_get("profiles.views.profile.show", pargs=[p.pk])
 
     def test_guest_cant_add(self):
         self.redirect_on_post("profiles.views.profile.add")

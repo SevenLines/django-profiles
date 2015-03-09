@@ -10,13 +10,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from profiles.forms import ProfileForm, PasskeyForm
 from profiles.models import Profile, ProfilePasskeys
 
-session_passkeys = "passkeys" # const, session variable which keeps all data
+session_passkeys = "passkeys"  # const, session variable which keeps all data
+
 
 def check_passkey(fn):
     """
     checks if correct passkey present in session and redirects to provide passkey page otherwise
     :return:
     """
+
     def wrapper(request, id):
         if request.user.is_superuser:
             return fn(request, id)
@@ -66,16 +68,32 @@ def index(request):
 
 def show(request, id):
     profile = get_object_or_404(Profile, pk=id)
-    return render(request, "profiles/show.html", {
-        'profile': profile
-    })
+
+    def render_show_view(prf):
+        return render(request, "profiles/show.html", {
+            'profile': prf
+        })
+
+    passkeys = ProfilePasskeys.objects.filter(profile=profile)
+    # anyone can see profile without passkey
+    if request.user.is_superuser or passkeys.count() == 0:
+        return render_show_view(profile)
+    elif passkeys.filter(user_id=request.user.pk).count() == 0:  # profle with passkey require user with
+        return redirect(reverse("django.contrib.auth.views.login") + '?next=%s' % request.path)
+    else:
+        pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
+        passkeys = request.session.get(session_passkeys)
+        if passkeys and id in passkeys and passkeys[id] == pkk.passkey:
+            return render_show_view(profile)
+        else:
+            if passkeys and id in passkeys:
+                messages.warning(request, 'wrong passkey')
+            return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
 
 
 def show_by_slug(request, slug):
     profile = get_object_or_404(Profile, slug=slug)
-    return render(request, "profiles/show.html", {
-        'profile': profile
-    })
+    return show(request, profile.pk)
 
 
 @user_passes_test(lambda u: u.is_superuser)
