@@ -12,18 +12,18 @@
 
                     {% if user.is_authenticated %}
                         {% if profile.pk in allowed_profiles_id %}
-                            <div class="profile-menu btn-group">
-                                <a type="button" class="btn btn-default"
-                                   href="{% url "profiles.views.profile.update" profile.pk %}">
-                                    <span class="glyphicon glyphicon-edit"></span>
-                                </a>
-                                {% if user.is_superuser %}
+                            {% if user.is_superuser %}
+                                <div class="profile-menu btn-group">
+                                    <a type="button" class="btn btn-default"
+                                       href="{% url "profiles.views.profile.update" profile.pk %}">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </a>
                                     <a type="button" class="btn btn-danger"
                                        href="{% url "profiles.views.profile.remove" profile.pk %}">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
-                                {% endif %}
-                            </div>
+                                </div>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 </div>
