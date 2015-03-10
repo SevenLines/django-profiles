@@ -1,0 +1,161 @@
+{% load sekizai_tags assets %}
+<div ng-app="manager-app" id="profile-manager">
+    <h1>Manager superuser</h1>
+    {% verbatim %}
+    <div class="row">
+        <!-- USER CONTROLLER -->
+        <div class="col-md-3" ng-controller="UsersCtrl">
+            <!-- USERS FILTER -->
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <div class="input-group">
+
+                        <input type="text" class="form-control" ng-model="query.username"
+                               placeholder="filter users"/>
+
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <!-- end USERS FILTER -->
+            <ul class="list-group">
+                <li class="list-group-item user"
+                    ng-repeat="user in users | filter:query"
+                    ng-class="{'list-group-item-success': user.changed() }"
+                    ng-click="setActiveUser(user)">
+                    {{ user.username }}
+
+                </li>
+            </ul>
+        </div>
+        <!-- end USER CONTROLLER -->
+        <!-- PROFILES CONTROLLER -->
+        <div class="col-md-3" ng-controller="ProfilesCtrl">
+            <!-- PROFILES FILTER -->
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <div class="input-group">
+
+                        <input type="text" class="form-control" ng-model="query"
+                               placeholder="filter profiles"/>
+
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <!-- end PROFILES FILTER -->
+            <div class="list-group" ng-show="info.user">
+                <div class="list-group-item profile"
+                     ng-repeat="profile in profiles | filter:query"
+                     ng-click="setActiveProfile(profile)"
+                     ng-class="{'active': profile == info.profile}">
+                    <div class="btn-group-sm pull-right">
+                        <div class="btn access"
+                             ng-click="user.toggleAllowed()"
+                             ng-class="{'btn-success':user.allowed[info.profile.id],
+                                                    'btn-danger': !user.allowed[info.profile.id] }">
+                            <span class="glyphicon glyphicon-lock"></span>
+                        </div>
+                        <div class="btn save" ng-click="save()"
+                             ng-class="{'btn-success':user.changed(),
+                                                    'btn-default': !user.changed() }">
+                            <span class="glyphicon glyphicon-save"></span>
+                        </div>
+                    </div>
+                    {{ profile.name }}
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+        <!-- end PROFILES CONTROLLER -->
+
+        <!-- USERS CONTROLLER -->
+        <div class="col-md-6" ng-controller="UsersCtrl">
+            <!-- USERS FILTER -->
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <div class="input-group">
+
+                        <input type="text" class="form-control" ng-model="query.username"
+                               placeholder="filter users"/>
+
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <!-- end USERS FILTER -->
+            <ul class="list-group" ng-show="info.profile" ng-hide="info.profile">
+                <li class="list-group-item">
+                    Select profile before start to work with users
+                </li>
+            </ul>
+
+
+            <ul class="list-group" ng-show="info.profile">
+
+                <li class="list-group-item user"
+                    ng-repeat="user in users | filter:query"
+                    ng-class="{'list-group-item-success': user.changed() }">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <div class="input-group-addon username">
+                                    {{ user.username }}
+                                </div>
+                                <input type="text" name="passkey" class="form-control" placeholder="password"
+                                       ng-model="user.passkeys[info.profile.id]"
+                                       ng-change="user.passkeyChanged()"/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="btn-group pull-right">
+                                <div class="btn btn-default passkey" ng-click="user.regenPassword()">
+                                    <span class="glyphicon glyphicon-refresh"></span>
+                                </div>
+                                <div class="btn btn-default save"
+                                     ng-click="user.sendPasskeyToEmail($event)">
+                                        <span class="glyphicon glyphicon-send"
+                                              ng-class="{'glyphicon-refresh-animate': user.sending_email}"></span>
+                                </div>
+                                <div class="btn access"
+                                     ng-click="user.toggleAllowed()"
+                                     ng-class="{'btn-success':user.allowed[info.profile.id],
+                                                    'btn-danger': !user.allowed[info.profile.id] }">
+                                    <span class="glyphicon glyphicon-lock"></span>
+                                </div>
+                                <div class="btn save" ng-click="save()"
+                                     ng-class="{'btn-success':user.changed(),
+                                                    'btn-default': !user.changed() }">
+                                    <span class="glyphicon glyphicon-save"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- end USERS CONTROLLER -->
+</div>
+{% endverbatim %}
+{% addtoblock "js" %}
+    <script>
+        commonUrls = {
+            'send_passkey_to_email': '{% url "profiles.views.manager.send_passkey_to_email" %}',
+            'update_profiles_passkeys': '{% url "profiles.views.manager.update_profile_passkeys" %}',
+            'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
+            'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json',
+            'profilepasskeys': '{% url "api_dispatch_list" resource_name="profilepasskeys" api_name='v1' %}?format=json'
+        }
+    </script>
+
+    {% assets 'profiles-manager-js' %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endaddtoblock %}

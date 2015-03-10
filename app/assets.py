@@ -12,6 +12,7 @@ profiles_manager_js = Bundle('vendor/angular/angular.js',
                             'js/manager/app.js',
                             'js/manager/models/user.js',
                             'js/manager/controllers/profiles.js',
+                            'js/manager/controllers/admins.js',
                             'js/manager/controllers/users.js',
                             filters="jsmin",
                             output="js/dist/profiles-manager.js")

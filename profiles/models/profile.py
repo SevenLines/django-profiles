@@ -1,5 +1,5 @@
 import datetime
-from django.contrib.auth.hashers import make_password, check_password
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
@@ -48,7 +48,7 @@ class Profile(ProfileBase):
         if user.is_superuser:
             return Profile.objects.all()
         else:
-            return Profile.objects.filter(Q(pk__in=profiles_for_user)|Q(pk__in=profiles_without_passkeys))
+            return Profile.objects.filter(Q(pk__in=profiles_for_user) | Q(pk__in=profiles_without_passkeys))
 
     def can_be_accessed(self, passkey, user):
         """
