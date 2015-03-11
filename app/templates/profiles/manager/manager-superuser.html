@@ -10,7 +10,7 @@
                 <li class="list-group-item">
                     <div class="input-group">
 
-                        <input type="text" class="form-control" ng-model="query.username"
+                        <input type="text" class="form-control" ng-model="query"
                                placeholder="filter users"/>
 
                         <div class="input-group-addon">
@@ -22,11 +22,16 @@
             <!-- end USERS FILTER -->
             <ul class="list-group">
                 <li class="list-group-item user"
-                    ng-repeat="user in users | filter:query"
-                    ng-class="{'list-group-item-success': user.changed() }"
+                    ng-repeat="user in users | filter:{ is_admin: true }"
+                    ng-class="{'list-group-item-success': user.changed(), 'active': user == info.user }"
                     ng-click="setActiveUser(user)">
+                    <div class="btn btn-sm save pull-right" ng-click="saveAllowedProfiles()"
+                         ng-class="{'btn-success':user.profiles_changed(),
+                                    'btn-default': !user.profiles_changed() }">
+                        <span class="glyphicon glyphicon-save"></span>
+                    </div>
                     {{ user.username }}
-
+                    <div class="clearfix"></div>
                 </li>
             </ul>
         </div>
@@ -55,15 +60,10 @@
                      ng-class="{'active': profile == info.profile}">
                     <div class="btn-group-sm pull-right">
                         <div class="btn access"
-                             ng-click="user.toggleAllowed()"
-                             ng-class="{'btn-success':user.allowed[info.profile.id],
-                                                    'btn-danger': !user.allowed[info.profile.id] }">
+                             ng-click="info.user.toggleProfileAllowed(profile)"
+                             ng-class="{'btn-success': info.user.profiles[profile.id],
+                                        'btn-danger': !info.user.profiles[profile.id] }">
                             <span class="glyphicon glyphicon-lock"></span>
-                        </div>
-                        <div class="btn save" ng-click="save()"
-                             ng-class="{'btn-success':user.changed(),
-                                                    'btn-default': !user.changed() }">
-                            <span class="glyphicon glyphicon-save"></span>
                         </div>
                     </div>
                     {{ profile.name }}
@@ -80,7 +80,7 @@
                 <li class="list-group-item">
                     <div class="input-group">
 
-                        <input type="text" class="form-control" ng-model="query.username"
+                        <input type="text" class="form-control" ng-model="query"
                                placeholder="filter users"/>
 
                         <div class="input-group-addon">
@@ -100,7 +100,7 @@
             <ul class="list-group" ng-show="info.profile">
 
                 <li class="list-group-item user"
-                    ng-repeat="user in users | filter:query"
+                    ng-repeat="user in users | filter:{ is_admin: false}"
                     ng-class="{'list-group-item-success': user.changed() }">
                     <div class="row">
                         <div class="col-md-6">
@@ -149,8 +149,10 @@
         commonUrls = {
             'send_passkey_to_email': '{% url "profiles.views.manager.send_passkey_to_email" %}',
             'update_profiles_passkeys': '{% url "profiles.views.manager.update_profile_passkeys" %}',
+            'update_allowed_profiles': '{% url "profiles.views.manager.update_allowed_profiles" %}',
             'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
-            'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json',
+{#            'userprofiles': '{% url "api_dispatch_list" resource_name="userprofile" api_name='v1' %}?format=json',#}
+            'users': '{% url "api_dispatch_list" resource_name="userprofile" api_name='v1' %}?format=json',
             'profilepasskeys': '{% url "api_dispatch_list" resource_name="profilepasskeys" api_name='v1' %}?format=json'
         }
     </script>

@@ -11,6 +11,8 @@ class UserProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'venue user'
 
+    exclude = ['profiles']
+
 
 class UserAdmin(UserAdmin):
     inlines = (UserProfileInline, )

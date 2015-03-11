@@ -12,10 +12,13 @@ app.factory("User", ['$http', 'info', function ($http, info) {
      * @constructor
      */
     function User(data, profile_passkeys) {
-        this.id = data.id;
-        this.username = data.username;
+        this.id = data.user.id;
+        this.username = data.user.username;
+        this.email = data.user.email;
+        this.is_admin = data.is_admin;
         this.passkeys = {};
         this.allowed = {};
+        this.profiles = {};
 
         this.sending_email = false;
 
@@ -29,6 +32,7 @@ app.factory("User", ['$http', 'info', function ($http, info) {
 
         this.base_allowed = _.clone(this.allowed); // array to check for changing
         this.base_passkeys = _.clone(this.passkeys); // array to check for changing
+        this.base_profiles = _.clone(this.profiles); // array to check for changing
     }
 
     User.prototype = {
@@ -45,6 +49,13 @@ app.factory("User", ['$http', 'info', function ($http, info) {
                 } else {
                     this.allowed[info.profile.id] = false;
                 }
+            }
+        },
+        toggleProfileAllowed: function (profile, allowed) {
+            if (this.profiles[profile.id]) {
+                this.profiles[profile.id] = false;
+            } else {
+                this.profiles[profile.id] = true;
             }
         },
         regenPassword: function () {
@@ -73,6 +84,14 @@ app.factory("User", ['$http', 'info', function ($http, info) {
             }
             return false;
         },
+        profiles_changed: function () {
+            for (var item in this.profiles) {
+                if (this.profiles[item] !== this.base_profiles[item]) {
+                    return true;
+                }
+            }
+            return false;
+        },
         post_data: function () {
             /***
              * returns object suited for  `profiles.views.manager.update_profile_passkeys` view
@@ -86,13 +105,14 @@ app.factory("User", ['$http', 'info', function ($http, info) {
         },
         reset: function () {
             /***
-             * resets base values, like thet object was initially created
+             * resets base values, like that object was initially created
              */
             if (!this.allowed[info.profile.id]) {
                 this.passkeys[info.profile.id] = '';
             }
             this.base_allowed = _.clone(this.allowed); // reset array to check for changing
             this.base_passkeys = _.clone(this.passkeys); // reset array to check for changing
+            this.base_profiles = _.clone(this.profiles); // reset array to check for changing
         },
         passkeyChanged: function () {
             /***
@@ -101,6 +121,21 @@ app.factory("User", ['$http', 'info', function ($http, info) {
             if (info.profile) {
                 this.allowed[info.profile.id] = !!this.passkeys[info.profile.id];
             }
+        },
+        post_allowed_profile_data: function () {
+            values = [];
+            for (var i in this.profiles) {
+                if (this.profiles[i]) {
+                    values.push(i);
+                }
+            }
+            return {
+                'user': this.id,
+                'profiles': values
+            }
+        },
+        reset_profiles: function () {
+            this.base_profiles = _.clone(this.profiles);
         },
         sendPasskeyToEmail: function ($event) {
             /***

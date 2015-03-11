@@ -13,7 +13,7 @@ from django.utils.html import strip_tags
 from django.views.decorators.http import require_POST
 from app.utils import require_in_POST, require_in_GET
 
-from profiles.forms import ProfileForm, PasskeyForm, ProfilePasskeysForm
+from profiles.forms import ProfileForm, PasskeyForm, ProfilePasskeysForm, AllowedProfilesForm
 from profiles.models import Profile, ProfilePasskeys
 
 
@@ -47,14 +47,14 @@ def send_passkey_to_email(request, ):
 
     try:
         user.email_user("New passkey", strip_tags(message_html), settings.EMAIL_USERNAME,
-                    html_message=message_html)
+                        html_message=message_html)
     except Exception as e:
         return HttpResponseBadRequest()
 
     return HttpResponse()
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: hasattr(u, 'is_admin') and u.is_admin)
 @require_POST
 @require_in_POST('profile_passkeys')
 @atomic
@@ -87,4 +87,19 @@ def update_profile_passkeys(request):
         ppk, _ = ProfilePasskeys.objects.get_or_create(profile_id=profile_id, user_id=user_id)
         ppk.passkey = passkey
         ppk.save()
+    return HttpResponse()
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
+@require_in_POST('admins')
+@atomic
+def update_allowed_profiles(request):
+    admins = json.loads(request.POST['admins'])
+    for admin in admins:
+        user = get_object_or_404(User, pk=admin['user'])
+        form = AllowedProfilesForm(admin, instance=user.profile)
+        if form.is_valid():
+            form.save()
+
     return HttpResponse()

@@ -20,7 +20,7 @@ app.controller("UsersCtrl", ['$scope', '$http', 'info', 'User', function ($scope
         /***
          * set active user in global info object
          */
-        $scope.info.user = user;
+        info.user = user;
     };
 
     $scope.save = function () {
@@ -48,4 +48,25 @@ app.controller("UsersCtrl", ['$scope', '$http', 'info', 'User', function ($scope
             });
         });
     };
+    $scope.saveAllowedProfiles = function () {
+        var data_to_send = [];
+        $scope.users.forEach(function (item) {
+            if (item.profiles_changed()) {
+                data_to_send.push(item.post_allowed_profile_data());
+            }
+        });
+        $http({
+            method: "POST",
+            url: commonUrls.update_allowed_profiles,
+            data: $.param({
+                "admins": JSON.stringify(data_to_send),
+                "csrfmiddlewaretoken": $.cookie("csrftoken")
+            }),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        }).success(function () {
+            $scope.users.forEach(function (item) {
+                item.reset_profiles();
+            });
+        });
+    }
 }]);
