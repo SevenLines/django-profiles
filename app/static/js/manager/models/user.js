@@ -12,27 +12,33 @@ app.factory("User", ['$http', 'info', function ($http, info) {
      * @constructor
      */
     function User(data, profile_passkeys) {
-        this.id = data.user.id;
-        this.username = data.user.username;
-        this.email = data.user.email;
-        this.is_admin = data.is_admin;
-        this.passkeys = {};
-        this.allowed = {};
-        this.profiles = {};
+        var self = this;
+        self.id = data.user.id;
+        self.username = data.user.username;
+        self.email = data.user.email;
+        self.is_admin = data.is_admin;
+        self.passkeys = {};
+        self.allowed = {};
 
-        this.sending_email = false;
+        // map profiles values returned by api
+        self.profiles = {};
+        data.profiles.forEach(function (item) {
+            self.profiles[item.id] = true;
+        });
+
+        self.sending_email = false;
 
         for (var i = 0, l = profile_passkeys.length; i < l; ++i) {
             var profile_passkey = profile_passkeys[i];
-            if (profile_passkey.user == this.id) {
-                this.passkeys[profile_passkey.profile] = profile_passkey.passkey;
-                this.allowed[profile_passkey.profile] = true;
+            if (profile_passkey.user == self.id) {
+                self.passkeys[profile_passkey.profile] = profile_passkey.passkey;
+                self.allowed[profile_passkey.profile] = true;
             }
         }
 
-        this.base_allowed = _.clone(this.allowed); // array to check for changing
-        this.base_passkeys = _.clone(this.passkeys); // array to check for changing
-        this.base_profiles = _.clone(this.profiles); // array to check for changing
+        self.base_allowed = _.clone(self.allowed); // array to check for changing
+        self.base_passkeys = _.clone(self.passkeys); // array to check for changing
+        self.base_profiles = _.clone(self.profiles); // array to check for changing
     }
 
     User.prototype = {
