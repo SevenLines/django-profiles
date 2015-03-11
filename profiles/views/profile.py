@@ -35,6 +35,28 @@ def check_passkey(fn):
 
     return wrapper
 
+def check_is_admin(fn):
+    def wrapper(request, id):
+        if request.user.is_superuser:
+            return fn(request, id)
+
+        if hasattr(request.user, 'is_admin') and request.user.is_admin:
+            if request.user.is_superuser or request.user.profile.profiles.filter(pk=id).count():
+                return fn(request, id)
+
+        # if user dont have access for that profile
+        return redirect(reverse("django.contrib.auth.views.login") + '?next=%s' % request.path)
+    return wrapper
+        # passkeys = request.session.get(session_passkeys)
+        # pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
+        # if passkeys and unicode(id) in passkeys and passkeys[unicode(id)] == pkk.passkey:
+        #     return fn(request, id)
+        # else:
+        #     if passkeys and unicode(id) in passkeys:
+        #         messages.warning(request, 'wrong passkey')
+        #     return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
+
+
 
 @login_required
 def provide_passkey(request, id):
@@ -61,16 +83,10 @@ def provide_passkey(request, id):
 
 
 def index(request):
-    profiles_for_user = ProfilePasskeys.objects.filter(user_id=request.user.id).values("profile_id").distinct()
-    profiles_with_passkeys = ProfilePasskeys.objects.values("profile_id").distinct()
-    profiles_without_passkeys = Profile.objects.exclude(pk__in=profiles_with_passkeys).values("id")
-    if request.user.is_superuser:
-        profiles = Profile.objects.all()
-    else:
-        profiles = Profile.objects.filter(Q(pk__in=profiles_for_user)|Q(pk__in=profiles_without_passkeys))
-
     return render(request, "profiles/index.html", {
         'profiles': Profile.list_accessed_by(request.user),
+        'allowed_profiles': request.user.profile.profiles.values_list("id", flat=True) if hasattr(request.user,
+                                                                                                  'profile') else [],
     })
 
 
@@ -83,20 +99,29 @@ def show(request, id):
         })
 
     passkeys = ProfilePasskeys.objects.filter(profile=profile)
+
+
     # anyone can see profile without passkey
-    if request.user.is_superuser or passkeys.count() == 0:
+    if passkeys.count() == 0:
         return render_show_view(profile)
-    elif passkeys.filter(user_id=request.user.pk).count() == 0:  # profle with passkey require user with
-        return redirect(reverse("django.contrib.auth.views.login") + '?next=%s' % request.path)
-    else:
-        pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
-        passkeys = request.session.get(session_passkeys)
-        if passkeys and unicode(id) in passkeys and passkeys[unicode(id)] == pkk.passkey:
+
+    # if user is admin, check has he access for that profile
+    if hasattr(request.user, 'is_admin') and request.user.is_admin:
+        if request.user.is_superuser or request.user.profile.profiles.filter(pk=profile.id).count():
             return render_show_view(profile)
-        else:
-            if passkeys and unicode(id) in passkeys:
-                messages.warning(request, 'wrong passkey')
-            return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
+
+    # if user dont have access for that profile
+    if passkeys.filter(user_id=request.user.pk).count() == 0:
+        return redirect(reverse("django.contrib.auth.views.login") + '?next=%s' % request.path)
+
+    pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
+    passkeys = request.session.get(session_passkeys)
+    if passkeys and unicode(id) in passkeys and passkeys[unicode(id)] == pkk.passkey:
+        return render_show_view(profile)
+    else:
+        if passkeys and unicode(id) in passkeys:
+            messages.warning(request, 'wrong passkey')
+        return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
 
 
 def show_by_slug(request, slug):
@@ -149,7 +174,8 @@ def remove(request, id):
 
 # @login_required
 # @check_passkey
-@user_passes_test(lambda u: u.is_superuser)
+# @user_passes_test(lambda u: u.is_admin)
+@check_is_admin
 def update(request, id):
     """
     updates profile by id, on GET returns common profile-update-page
@@ -163,6 +189,12 @@ def update(request, id):
     context = {
         'profile': profile
     }
+
+    # # if user is admin, check has he access for that profile
+    # if hasattr(request.user, 'is_admin') and request.user.is_admin:
+    #     if request.user.is_superuser or request.user.profile.profiles.filter(pk=profile.id).count():
+    #         return render_show_view(profile)
+
     if request.method == "GET":
         context['form'] = ProfileForm(instance=profile)
         return render(request, "profiles/update.html", context)

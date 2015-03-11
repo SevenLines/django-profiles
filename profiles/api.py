@@ -10,11 +10,11 @@ from profiles.models.user_profile import UserProfile
 
 class SuperuserAuthentication(Authentication):
     """
-    restricts access for all except superusers
+    restricts access for all except admins
     """
 
     def is_authenticated(self, request, **kwargs):
-        if not isinstance(request.user, AnonymousUser) and request.user.is_admin:
+        if hasattr(request.user, 'is_admin') and request.user.is_admin:
             return True
         return False
 
@@ -24,6 +24,15 @@ class SuperuserAuthentication(Authentication):
 
 
 class ProfileResource(ModelResource):
+
+    def get_object_list(self, request):
+        query = super(ProfileResource, self).get_object_list(request)
+        if not request.user.is_superuser:
+            # get list of profiles that can be managed by this user
+            allowed_profiles = request.user.profile.profiles.values("id")
+            query = query.filter(id__in=allowed_profiles)
+        return query
+
     class Meta:
         queryset = Profile.objects.all()
         authentication = SuperuserAuthentication()
@@ -53,10 +62,17 @@ class AllowedProfileResource(ModelResource):
 class UserProfileResource(ModelResource):
     """
     api resource returning all sensitive info about profile
-    excludes superusers and unactive users
+    excludes superusers, request  user, and unactive users
     """
     user = fields.ToOneField(UserResource, 'user', full=True)
     profiles = fields.ToManyField(AllowedProfileResource, "profiles", full=True)
+
+    def get_object_list(self, request):
+        query = super(UserProfileResource, self).get_object_list(request)
+
+        # exclude self
+        query = query.exclude(user=request.user)
+        return query
 
     class Meta:
         queryset = UserProfile.objects.filter(user__is_superuser=False, user__is_active=True)

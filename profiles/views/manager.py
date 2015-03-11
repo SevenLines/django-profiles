@@ -1,5 +1,6 @@
 import json
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -17,13 +18,13 @@ from profiles.forms import ProfileForm, PasskeyForm, ProfilePasskeysForm, Allowe
 from profiles.models import Profile, ProfilePasskeys
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: hasattr(u, 'is_admin') and u.is_admin)
 def manager(request):
-    context = {
-        'users': User.objects.all(),
-        'profiles': Profile.objects.all(),
-    }
-    return render(request, "profiles/manager/manager.html", context)
+    # context = {
+    #     'users': User.objects.all(),
+    #     'profiles': Profile.objects.all(),
+    # }
+    return render(request, "profiles/manager/manager.html", {})
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -71,22 +72,27 @@ def update_profile_passkeys(request):
 
     """
     profiles_passkeys = json.loads(request.POST['profile_passkeys'])
+    allowed_profiles = request.user.profile.profiles.values("id")
     for profile_passkey in profiles_passkeys:
-        profile_id = profile_passkey['profile']
-        user_id = profile_passkey['user']
+        profile_id = int(profile_passkey['profile'])
+        user_id = int(profile_passkey['user'])
 
-        if 'allowed' in profile_passkey:
-            if profile_passkey['allowed'] == False:
-                ppk = ProfilePasskeys.objects.filter(profile_id=profile_id, user_id=user_id)
-                ppk.delete()
+        # check for user can update profiles passkeys:
+        if not request.user.is_superuser and profile_id in allowed_profiles:
+            if 'allowed' in profile_passkey:
+                if profile_passkey['allowed'] == False:
+                    ppk = ProfilePasskeys.objects.filter(profile_id=profile_id, user_id=user_id)
+                    ppk.delete()
+                    continue
+
+            passkey = profile_passkey['passkey']
+            if passkey == '':
                 continue
-
-        passkey = profile_passkey['passkey']
-        if passkey == '':
-            continue
-        ppk, _ = ProfilePasskeys.objects.get_or_create(profile_id=profile_id, user_id=user_id)
-        ppk.passkey = passkey
-        ppk.save()
+            ppk, _ = ProfilePasskeys.objects.get_or_create(profile_id=profile_id, user_id=user_id)
+            ppk.passkey = passkey
+            ppk.save()
+        else:
+            messages.warning("You cant update profile with id=%s", profile_id)
     return HttpResponse()
 
 

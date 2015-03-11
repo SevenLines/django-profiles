@@ -108,7 +108,7 @@
             'send_passkey_to_email': '{% url "profiles.views.manager.send_passkey_to_email" %}',
             'update_profiles_passkeys': '{% url "profiles.views.manager.update_profile_passkeys" %}',
             'profiles': '{% url "api_dispatch_list" resource_name="profile" api_name='v1' %}?format=json',
-            'users': '{% url "api_dispatch_list" resource_name="user" api_name='v1' %}?format=json',
+            'users': '{% url "api_dispatch_list" resource_name="userprofile" api_name='v1' %}?format=json',
             'profilepasskeys': '{% url "api_dispatch_list" resource_name="profilepasskeys" api_name='v1' %}?format=json'
         }
     </script>
