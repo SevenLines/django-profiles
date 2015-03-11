@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 # Make sure that you create credentials.json file in root directory
 try:
-    credentials = json.loads(open("credentials.json").read())
+    credentials = json.loads(open(os.path.join(BASE_DIR, "credentials.json")).read())
 except BaseException as e:
     print "You probably forget to create credentials.json (check credentials_sample.json)"
     raise e

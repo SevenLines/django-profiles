@@ -63,6 +63,34 @@ class TestProfilesViews(TestCaseEx):
 
         self.client.logout()
 
+    def test_index_admin_can_see_only_profiles_which_he_admins_public_profiles_and_those_to_which_he_has_passkey(self):
+        ProfilePasskeys.objects.all().delete()
+        user = User.objects.create_user(username="C", password="C")
+        anotherUser = User.objects.create_user(username="D", password="D")
+
+        userprofile = user.profile
+        userprofile.is_admin = True
+        userprofile.save()
+
+        publicProfile = Profile.objects.create(name=u"a;sldjalk sjm900q ufasjflk aks")
+        assocciatedProfile = Profile.objects.create(name=u"j iosdiaus0d aus08h32ea;ldi ")
+        administratedProfile = Profile.objects.create(name=u";la sk d;lasjdlk hask;dj")
+        anotherUserProfile = Profile.objects.create(name=u";la sk alksjdlaskjdolkasdj")
+
+        # setup profiles
+        ProfilePasskeys.objects.create(user=user, profile=assocciatedProfile)
+        ProfilePasskeys.objects.create(user=anotherUser, profile=anotherUserProfile)
+        userprofile.profiles.add(administratedProfile)
+
+        self.client.login(username=user.username, password=user.username)
+
+        response = self.can_get("profiles.views.profile.index")
+        self.assertContains(response, publicProfile.name)
+        self.assertContains(response, assocciatedProfile.name)
+        self.assertContains(response, administratedProfile.name)
+        self.assertNotContains(response, anotherUserProfile.name)
+
+        self.client.logout()
 
 
     def test_if_profile_dont_have_users_anyone_can_see_it(self):
@@ -178,40 +206,64 @@ class TestProfilesViews(TestCaseEx):
         # self.redirect_to_login_on_get("profiles.views.profile.update", pargs=[p.pk], params=params)
         self.redirect_to_login_on_post("profiles.views.profile.update", pargs=[p.pk], params=params)
 
-    # @TestCaseEx.login
-    # def test_simple_user_cant_update_without_correct_passkey_in_session(self):
-    #     profile = Profile.objects.create(name=u"some_new_name")
-    #
-    #     ProfilePasskeys.objects.all().delete()
-    #     ProfilePasskeys.objects.create(user=self.user, profile=profile, passkey="5678")
-    #
-    #     params = {
-    #         'text': '1928laksldjas',
-    #         'name': 'alsjdlaskdjlsd'
-    #     }
-    #     response = self.redirect_on_post("profiles.views.profile.update", params=params, pargs=[profile.pk, ])
-    #     self.assertRedirects(response, reverse("profiles.views.profile.provide_passkey", args=[profile.pk]))
-    #
-    #
-    # @TestCaseEx.login
-    # def test_simple_user_can_update_with_correct_passkey_in_session(self):
-    #     profile = Profile.objects.create(name=u"some_new_name")
-    #     user = User.objects.create_user("sample_user3", password="12345")
-    #
-    #     ProfilePasskeys.objects.all().delete()
-    #     ProfilePasskeys.objects.create(user=self.user, profile=profile, passkey="5678")
-    #
-    #     session = self.client.session
-    #     session[session_passkeys] = {
-    #         profile.id: "5678"
-    #     }
-    #     session.save()
-    #
-    #     params = {
-    #         'text': '1928laksldjas',
-    #         'name': 'alsjdlaskdjlsd'
-    #     }
-    #     response = self.can_get("profiles.views.profile.update", params=params, pargs=[profile.pk])
+    def test_admin_cant_update_not_his_profiles(self):
+        adminUser = User.objects.create_user("alkshdaklsd", password="234")
+
+        p = Profile.objects.create(name=u"some_another_new_nam1231e")
+        ProfilePasskeys.objects.all().delete()
+        ProfilePasskeys.objects.create(user=adminUser, profile=p, passkey="5678")
+
+        if self.client.login(username=adminUser, password="234"):
+
+            session = self.client.session
+            session[session_passkeys] = {
+                p.id: "5678"
+            }
+            session.save()
+
+            params = {
+                'text': '1928laksldjas',
+                'name': 'alsjdlaskdjlsd'
+            }
+
+            self.redirect_to_login_on_post("profiles.views.profile.update", params=params, pargs=[p.pk])
+            self.redirect_to_login_on_get("profiles.views.profile.update", params=params, pargs=[p.pk])
+
+            self.client.logout()
+
+    def test_admin_can_update_his_profiles(self):
+        adminUser = User.objects.create_user("alkshdakasdasdlsd", password="234")
+
+        p = Profile.objects.create(name=u"some_another_new_nam1231e")
+
+        userprofile = adminUser.profile
+        userprofile.is_admin = True
+        userprofile.profiles.add(p.pk)
+        userprofile.save()
+
+        if self.client.login(username=adminUser, password="234"):
+
+            session = self.client.session
+            session[session_passkeys] = {
+                p.id: "5678"
+            }
+            session.save()
+
+            params = {
+                'text': '1928laksldjas',
+                'name': 'alsjdlaskdjlsd'
+            }
+
+            self.can_get("profiles.views.profile.update", params=params, pargs=[p.pk])
+            response = self.redirect_on_post("profiles.views.profile.update", params=params, pargs=[p.pk])
+
+            p = Profile.objects.get(pk=p.pk)
+            self.assertRedirects(response, reverse("profiles.views.profile.show_by_slug", args=[p.slug]))
+
+            self.assertEqual(p.text, params['text'])
+            self.assertEqual(p.name, params['name'])
+            self.client.logout()
+
 
     @TestCaseEx.superuser
     def test_update_should_update_values(self):

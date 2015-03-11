@@ -36,6 +36,11 @@ def check_passkey(fn):
     return wrapper
 
 def check_is_admin(fn):
+    """
+    check is user is admin and redirects to login page
+    :param fn:
+    :return:
+    """
     def wrapper(request, id):
         if request.user.is_superuser:
             return fn(request, id)
@@ -47,14 +52,6 @@ def check_is_admin(fn):
         # if user dont have access for that profile
         return redirect(reverse("django.contrib.auth.views.login") + '?next=%s' % request.path)
     return wrapper
-        # passkeys = request.session.get(session_passkeys)
-        # pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
-        # if passkeys and unicode(id) in passkeys and passkeys[unicode(id)] == pkk.passkey:
-        #     return fn(request, id)
-        # else:
-        #     if passkeys and unicode(id) in passkeys:
-        #         messages.warning(request, 'wrong passkey')
-        #     return redirect(reverse("profiles.views.profile.provide_passkey", args=[id, ]))
 
 
 
@@ -85,8 +82,8 @@ def provide_passkey(request, id):
 def index(request):
     return render(request, "profiles/index.html", {
         'profiles': Profile.list_accessed_by(request.user),
-        'allowed_profiles': request.user.profile.profiles.values_list("id", flat=True) if hasattr(request.user,
-                                                                                                  'profile') else [],
+        'allowed_profiles': request.user.profile.profiles.values_list("id", flat=True)
+                            if hasattr(request.user,'profile') else [],
     })
 
 
@@ -110,10 +107,11 @@ def show(request, id):
         if request.user.is_superuser or request.user.profile.profiles.filter(pk=profile.id).count():
             return render_show_view(profile)
 
-    # if user dont have access for that profile
+    # if user dont have access for that profile we'll redirect him to login
     if passkeys.filter(user_id=request.user.pk).count() == 0:
         return redirect(reverse("django.contrib.auth.views.login") + '?next=%s' % request.path)
 
+    # if user has access to that profile he should provide correct passkey
     pkk = get_object_or_404(ProfilePasskeys, user_id=request.user.pk, profile_id=id)
     passkeys = request.session.get(session_passkeys)
     if passkeys and unicode(id) in passkeys and passkeys[unicode(id)] == pkk.passkey:

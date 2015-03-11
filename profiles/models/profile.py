@@ -45,8 +45,11 @@ class Profile(ProfileBase):
         profiles_for_user = ProfilePasskeys.objects.filter(user_id=user.id).values("profile_id").distinct()
         profiles_with_passkeys = ProfilePasskeys.objects.values("profile_id").distinct()
         profiles_without_passkeys = Profile.objects.exclude(pk__in=profiles_with_passkeys).values("id")
-        if hasattr(user, 'is_admin') and user.is_admin:
+        if user.is_superuser:
             return Profile.objects.all()
+        if hasattr(user, 'is_admin') and user.is_admin:
+            return Profile.objects.filter(Q(pk__in=profiles_for_user) | Q(pk__in=profiles_without_passkeys)) \
+                   | user.profile.profiles.all()
         else:
             return Profile.objects.filter(Q(pk__in=profiles_for_user) | Q(pk__in=profiles_without_passkeys))
 

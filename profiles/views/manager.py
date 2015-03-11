@@ -78,7 +78,7 @@ def update_profile_passkeys(request):
         user_id = int(profile_passkey['user'])
 
         # check for user can update profiles passkeys:
-        if not request.user.is_superuser and profile_id in allowed_profiles:
+        if request.user.is_superuser or profile_id in allowed_profiles:
             if 'allowed' in profile_passkey:
                 if profile_passkey['allowed'] == False:
                     ppk = ProfilePasskeys.objects.filter(profile_id=profile_id, user_id=user_id)
@@ -91,8 +91,8 @@ def update_profile_passkeys(request):
             ppk, _ = ProfilePasskeys.objects.get_or_create(profile_id=profile_id, user_id=user_id)
             ppk.passkey = passkey
             ppk.save()
-        else:
-            messages.warning("You cant update profile with id=%s", profile_id)
+        # else:
+        #     messages.warning("You cant update profile with id=%s", profile_id)
     return HttpResponse()
 
 

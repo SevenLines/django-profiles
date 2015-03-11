@@ -1,6 +1,7 @@
 {% load sekizai_tags assets %}
 <div ng-app="manager-app" id="profile-manager">
-    <h1>Manager superuser</h1>
+    <h1>Manager for superuser</h1>
+    <hr/>
     {% verbatim %}
     <div class="row">
         <!-- USER CONTROLLER -->
@@ -100,7 +101,7 @@
             <ul class="list-group" ng-show="info.profile">
 
                 <li class="list-group-item user"
-                    ng-repeat="user in users | filter:{ is_admin: false}"
+                    ng-repeat="user in users"
                     ng-class="{'list-group-item-success': user.changed() }">
                     <div class="row">
                         <div class="col-md-6">
