@@ -4,17 +4,10 @@
 
 app = angular.module("manager-app");
 
-app.controller("UsersCtrl", ['$scope', '$http', 'info', 'User', function ($scope, $http, info, User) {
+app.controller("UsersCtrl", ['$scope', '$http', 'info', 'Users', function ($scope, $http, info, users) {
     $scope.info = info;
-    $http.get(commonUrls.profilepasskeys).success(function (data) {
-        var profile_passkeys = data.objects;
+    $scope.users = users;
 
-        $http.get(commonUrls.users).success(function (data) {
-            $scope.users = data.objects.map(function (item) {
-                return new User(item, profile_passkeys)
-            });
-        });
-    });
 
     $scope.setActiveUser = function (user) {
         /***
@@ -29,7 +22,7 @@ app.controller("UsersCtrl", ['$scope', '$http', 'info', 'User', function ($scope
          * @type {Array}
          */
         var data_to_send = [];
-        $scope.users.forEach(function (item) {
+        users.list.forEach(function (item) {
             if (item.changed()) {
                 data_to_send.push(item.post_data());
             }
@@ -43,14 +36,14 @@ app.controller("UsersCtrl", ['$scope', '$http', 'info', 'User', function ($scope
             }),
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).success(function () {
-            $scope.users.forEach(function (item) {
+            users.list.forEach(function (item) {
                 item.reset();
             });
         });
     };
     $scope.saveAllowedProfiles = function () {
         var data_to_send = [];
-        $scope.users.forEach(function (item) {
+        users.list.forEach(function (item) {
             if (item.profiles_changed()) {
                 data_to_send.push(item.post_allowed_profile_data());
             }
@@ -64,7 +57,7 @@ app.controller("UsersCtrl", ['$scope', '$http', 'info', 'User', function ($scope
             }),
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }).success(function () {
-            $scope.users.forEach(function (item) {
+            users.list.forEach(function (item) {
                 item.reset_profiles();
             });
         });

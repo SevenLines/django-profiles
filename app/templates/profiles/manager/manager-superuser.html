@@ -11,7 +11,7 @@
                 <li class="list-group-item">
                     <div class="input-group">
 
-                        <input type="text" class="form-control" ng-model="query"
+                        <input type="text" class="form-control" ng-model="query.username"
                                placeholder="filter users"/>
 
                         <div class="input-group-addon">
@@ -23,7 +23,7 @@
             <!-- end USERS FILTER -->
             <ul class="list-group">
                 <li class="list-group-item user"
-                    ng-repeat="user in users | filter:{ is_admin: true }"
+                    ng-repeat="user in users.list |  filter: {is_admin: true} | filter: query"
                     ng-class="{'list-group-item-success': user.profiles_changed(), 'active': user == info.user }"
                     ng-click="setActiveUser(user)">
                     <div class="btn btn-sm save pull-right" ng-click="saveAllowedProfiles()"
@@ -54,12 +54,12 @@
                 </li>
             </ul>
             <!-- end PROFILES FILTER -->
-            <div class="list-group" ng-show="info.user">
+            <div class="list-group">
                 <div class="list-group-item profile"
                      ng-repeat="profile in profiles | filter:query"
                      ng-click="setActiveProfile(profile)"
                      ng-class="{'active': profile == info.profile}">
-                    <div class="btn-group-sm pull-right">
+                    <div class="btn-group-sm pull-right" ng-show="info.user">
                         <div class="btn access"
                              ng-click="info.user.toggleProfileAllowed(profile)"
                              ng-class="{'btn-success': info.user.profiles[profile.id],
@@ -101,7 +101,7 @@
             <ul class="list-group" ng-show="info.profile">
 
                 <li class="list-group-item user"
-                    ng-repeat="user in users"
+                    ng-repeat="user in users.list"
                     ng-class="{'list-group-item-success': user.changed() }">
                     <div class="row">
                         <div class="col-md-6">

@@ -72,7 +72,7 @@ def update_profile_passkeys(request):
 
     """
     profiles_passkeys = json.loads(request.POST['profile_passkeys'])
-    allowed_profiles = request.user.profile.profiles.values("id")
+    allowed_profiles = request.user.profile.profiles.values_list("id", flat=True)
     for profile_passkey in profiles_passkeys:
         profile_id = int(profile_passkey['profile'])
         user_id = int(profile_passkey['user'])

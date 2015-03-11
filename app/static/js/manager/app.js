@@ -6,11 +6,10 @@
 app = angular.module("manager-app", []);
 
 // shared data factory
-app.factory("info", ['$http', function ($http) {
+app.factory("info", function () {
     var self = this;
     self.profile = null; // current active profile
     self.user = null;  // current active  user
-    self.profilepasskeys = []; // profiles passkeys list
 
     self.gen_password = function (length) {
         var charset = "abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -22,6 +21,6 @@ app.factory("info", ['$http', function ($http) {
     };
 
     return this;
-}]);
+});
 
 
